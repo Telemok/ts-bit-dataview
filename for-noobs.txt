@@ -1,0 +1,20 @@
+tsc // compile to ready, make .js .map .d.ts
+
+npm test // test project
+
+https://github.com/Telemok/ts-bit-dataview.git
+
+
+
+
+
+npm install --save-dev jest
+npx jest --init //Y, jsdom,
+√ Would you like to use Typescript for the configuration file? // no, becouse TS compiled in ./dist/
+√ Choose the test environment that will be used for testing // node or jsdom, better test and node and jsdom
+√ Do you want Jest to add coverage reports? ... //no, prevent creating waste folder coveraje/
+√ Which provider should be used to instrument code for coverage? » //v8 or babel, idk what difference
+√ Automatically clear mock calls, instances, contexts and results before every test? ... //yes, clear cache = no problems
+rename jest.config.ts => jest.config.js1 // if no rename tsc will change dir structure in ./dist/
+don't need install if rename .ts to .js npm i --save-dev ts-node
+npm test // run test with jest
