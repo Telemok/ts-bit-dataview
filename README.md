@@ -181,9 +181,9 @@ https://github.com/Telemok/ts-bit-dataview.git
 
 ## Installation:
 1. Create your NodeJs, Browser or Webview app.
-2. Run: **npm import @telemok/ts-bit-dataview**
-3. Code: **import { BitDataView } from '@telemok/bitdataview';**
-4. Code: **var bitDataView = new BitDataView();**
+2. Run in console: <ins>npm install git+https://github.com/Telemok/ts-bit-dataview.git </ins>
+3. Code: <ins>import { BitDataView } from '@telemok/ts-bit-dataview';</ins>
+4. Code: <ins>const bitDataView = new BitDataView();</ins>
 
 ## Main functions:
 ```javascript
