@@ -194,7 +194,7 @@ export const config = {
   // Whether to use watchman for file crawling
   // watchman: true,
   "compilerOptions": {
-    "module": "ESNext"
+   //"module": "ES2019"
   }
 };
 export default  config;

@@ -1,4 +1,4 @@
-const { BitDataView } = require('../dist/BitDataView');
+const { BitDataView } = require('../dist/commonjs/BitDataView.js');
 //import { BitDataView } from './dist/BitDataView'
 
 test('List should add and retrieve items1', () => {

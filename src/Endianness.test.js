@@ -1,6 +1,6 @@
-//import {EnumEndianness, Endianness} from "./Endianness";
+//import {EnumEndianness, Endianness} from "../dist/esnext/Endianness.js";
 
-const { Endianness, EnumEndianness } = require('../dist/Endianness');
+const { Endianness, EnumEndianness } = require('../dist/commonjs/Endianness.js');
 
 test('List should add and retrieve items', () => {
     const endianness = new Endianness();

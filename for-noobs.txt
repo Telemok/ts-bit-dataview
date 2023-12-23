@@ -18,3 +18,8 @@ npx jest --init //Y, jsdom,
 rename jest.config.ts => jest.config.js1 // if no rename tsc will change dir structure in ./dist/
 don't need install if rename .ts to .js npm i --save-dev ts-node
 npm test // run test with jest
+
+
+tsc -p tsconfig.commonjs.json
+tsc -p tsconfig.esnext.json
+npm test

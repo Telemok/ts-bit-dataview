@@ -1,6 +1,6 @@
 //import {EnumBitNumbering, BitNumbering} from "./BitNumbering";
 
-const { BitNumbering, EnumBitNumbering } = require('../dist/BitNumbering');
+const { BitNumbering, EnumBitNumbering } = require('../dist/commonjs/BitNumbering');
 
 test('List should add and retrieve items', () => {
     const bitNumbering = new BitNumbering();
