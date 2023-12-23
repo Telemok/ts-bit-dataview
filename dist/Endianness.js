@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @file    Endianness.ts
 
@@ -21,12 +22,14 @@
  * RISC-V and ARM support both
  * JavaScript DataView use big-endian by default (why?)
  */
-export var EnumEndianness;
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Endianness = exports.EnumEndianness = void 0;
+var EnumEndianness;
 (function (EnumEndianness) {
     EnumEndianness[EnumEndianness["LITTLE_ENDIAN"] = 0] = "LITTLE_ENDIAN";
     EnumEndianness[EnumEndianness["BIG_ENDIAN"] = 1] = "BIG_ENDIAN";
-})(EnumEndianness || (EnumEndianness = {}));
-export class Endianness {
+})(EnumEndianness || (exports.EnumEndianness = EnumEndianness = {}));
+class Endianness {
     endianness;
     constructor(initialEnumEndianness = EnumEndianness.LITTLE_ENDIAN) {
         this.endianness = initialEnumEndianness;
@@ -71,4 +74,5 @@ export class Endianness {
             this.setBigEndian();
     }
 }
+exports.Endianness = Endianness;
 //# sourceMappingURL=Endianness.js.map

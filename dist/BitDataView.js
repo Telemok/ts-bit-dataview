@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @file    BitDataView.ts
  * @brief
@@ -33,8 +34,10 @@
  limitations under the License.
  @endverbatim
  */
-import { Endianness } from "./Endianness";
-import { BitNumbering } from "./BitNumbering";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.BitDataView = void 0;
+const Endianness_1 = require("./Endianness");
+const BitNumbering_1 = require("./BitNumbering");
 /*
 * RS-232, HDLC, Ethernet, and USB = LSB + Little Endian
 * telemok.com = LSB + Little Endian
@@ -63,11 +66,11 @@ function assertIntMinMax(value, minValue, maxValue) {
         throw new RangeError(`(${value}) must be ${minValue} <= Int <= ${maxValue}`);
     return value;
 }
-export class BitDataView {
+class BitDataView {
     /** Little or Big endian byte order, Little Endian is default in JS DataView. */
-    endianness = new Endianness();
+    endianness = new Endianness_1.Endianness();
     /** Lest or Most significant bit order, MSB is default in JS DataView. */
-    bitNumbering = new BitNumbering();
+    bitNumbering = new BitNumbering_1.BitNumbering();
     /** automaticMemoryExpansion - false set memory static, unexpandable, fast. true allow extend memory for left and right of array*/
     __automaticMemoryExpansion = false;
     /*Data Uint8Array. Expandable to right or left.*/
@@ -2036,5 +2039,6 @@ _countBitsShifted can not be < 0
         return this._pop_DataView_noAsserts(countBitsToPop, littleEndian);
     }
 }
+exports.BitDataView = BitDataView;
 //let tempBitDataView = new BitDataView(tmpArr8.buffer);
 //# sourceMappingURL=BitDataView.js.map

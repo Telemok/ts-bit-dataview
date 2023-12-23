@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @file    BitNumbering.ts
 
@@ -19,12 +20,14 @@
 /**
 * https://en.wikipedia.org/wiki/Bit_numbering
  */
-export var EnumBitNumbering;
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.BitNumbering = exports.EnumBitNumbering = void 0;
+var EnumBitNumbering;
 (function (EnumBitNumbering) {
     EnumBitNumbering[EnumBitNumbering["LSB"] = 0] = "LSB";
     EnumBitNumbering[EnumBitNumbering["MSB"] = 1] = "MSB";
-})(EnumBitNumbering || (EnumBitNumbering = {}));
-export class BitNumbering extends EventTarget {
+})(EnumBitNumbering || (exports.EnumBitNumbering = EnumBitNumbering = {}));
+class BitNumbering extends EventTarget {
     bitNumbering;
     constructor(initialEnumBitNumbering = EnumBitNumbering.LSB) {
         super();
@@ -64,4 +67,5 @@ export class BitNumbering extends EventTarget {
         return EnumBitNumbering[this.bitNumbering];
     }
 }
+exports.BitNumbering = BitNumbering;
 //# sourceMappingURL=BitNumbering.js.map
