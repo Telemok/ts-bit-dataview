@@ -29,7 +29,7 @@ Available in folder /examples/
 #### 1. Pack Uint7, Boolean, Int43 variables to hex. And unpack.
 
 ```javascript
-import { BitDataView } from '@telemok/bitdataview';
+import { BitDataView } from '@telemok/ts-bit-dataview';
 
 let sourceData = {
 	percents: 99, // maximal 7 bits
@@ -84,7 +84,7 @@ int main(){// .exe 0x64 Ryzen 5500U
 #### 3. New instance with parameters
 
 ```javascript
-import { BitDataView } from '@telemok/bitdataview';
+import { BitDataView } from '@telemok/ts-bit-dataview';
 
 let bitdataview = new BitDataView({
     automaticMemoryExpansion: true,//Allow auto expand, when push or unshift
@@ -97,7 +97,7 @@ let bitdataview = new BitDataView({
 #### 4. Make binary packed packet
 
 ```javascript
-import { BitDataView } from '@telemok/bitdataview';
+import { BitDataView } from '@telemok/ts-bit-dataview';
 
 function userPutDataToPacket(bdv) {//put some user different data
 	bdv.push_Uint(12, driver.PACKET_TYPE_TELEMETRY_1);
