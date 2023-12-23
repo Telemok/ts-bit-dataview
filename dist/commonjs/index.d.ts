@@ -16,6 +16,6 @@
  limitations under the License.
  @endverbatim
  */
-export { BitDataView } from "./BitDataView";
-export { BitNumbering } from "./BitNumbering";
-export { Endianness } from "./Endianness";
+export { BitDataView } from "./BitDataView.js";
+export { BitNumbering } from "./BitNumbering.js";
+export { Endianness } from "./Endianness.js";

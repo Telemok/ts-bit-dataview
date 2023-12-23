@@ -36,8 +36,8 @@
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BitDataView = void 0;
-const Endianness_1 = require("./Endianness");
-const BitNumbering_1 = require("./BitNumbering");
+const Endianness_js_1 = require("./Endianness.js");
+const BitNumbering_js_1 = require("./BitNumbering.js");
 /*
 * RS-232, HDLC, Ethernet, and USB = LSB + Little Endian
 * telemok.com = LSB + Little Endian
@@ -68,9 +68,9 @@ function assertIntMinMax(value, minValue, maxValue) {
 }
 class BitDataView {
     /** Little or Big endian byte order, Little Endian is default in JS DataView. */
-    endianness = new Endianness_1.Endianness();
+    endianness = new Endianness_js_1.Endianness();
     /** Lest or Most significant bit order, MSB is default in JS DataView. */
-    bitNumbering = new BitNumbering_1.BitNumbering();
+    bitNumbering = new BitNumbering_js_1.BitNumbering();
     /** automaticMemoryExpansion - false set memory static, unexpandable, fast. true allow extend memory for left and right of array*/
     __automaticMemoryExpansion = false;
     /*Data Uint8Array. Expandable to right or left.*/

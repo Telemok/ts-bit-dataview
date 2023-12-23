@@ -2,7 +2,7 @@
   "name": "@telemok/ts-bit-dataview",
   "version": "0.0.23122300",
   "description": "TypeScript bit addressing DataView+Stack+Queue+Buffer+Array with any types: Uint13, Int53, BigInt61, Float17, LSB/MSB, LE/BE, .set(), .get(), .push(), .pop(), .shift(), .unshift()",
-  "main": "./dist/index.js",
+  "main": "./dist/esnext/index.js",
   "type": "module",
   "scripts": {
     "test": "jest"

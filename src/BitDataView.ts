@@ -34,8 +34,8 @@
  @endverbatim
  */
 
-import {Endianness} from "./Endianness";
-import {BitNumbering} from "./BitNumbering";
+import {Endianness} from "./Endianness.js";
+import {BitNumbering} from "./BitNumbering.js";
 
 
 /*

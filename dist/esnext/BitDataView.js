@@ -33,8 +33,8 @@
  limitations under the License.
  @endverbatim
  */
-import { Endianness } from "./Endianness";
-import { BitNumbering } from "./BitNumbering";
+import { Endianness } from "./Endianness.js";
+import { BitNumbering } from "./BitNumbering.js";
 /*
 * RS-232, HDLC, Ethernet, and USB = LSB + Little Endian
 * telemok.com = LSB + Little Endian

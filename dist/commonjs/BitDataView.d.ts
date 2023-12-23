@@ -33,8 +33,8 @@
  limitations under the License.
  @endverbatim
  */
-import { Endianness } from "./Endianness";
-import { BitNumbering } from "./BitNumbering";
+import { Endianness } from "./Endianness.js";
+import { BitNumbering } from "./BitNumbering.js";
 export declare class BitDataView {
     /** Little or Big endian byte order, Little Endian is default in JS DataView. */
     readonly endianness: Endianness;
