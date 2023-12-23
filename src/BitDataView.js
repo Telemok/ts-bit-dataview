@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @file    BitDataView.ts
  * @brief
@@ -33,8 +34,10 @@
  limitations under the License.
  @endverbatim
  */
-import { Endianness } from "./Endianness";
-import { BitNumbering } from "./BitNumbering";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.BitDataView = void 0;
+var Endianness_1 = require("./Endianness");
+var BitNumbering_1 = require("./BitNumbering");
 /*
 * RS-232, HDLC, Ethernet, and USB = LSB + Little Endian
 * telemok.com = LSB + Little Endian
@@ -46,56 +49,24 @@ import { BitNumbering } from "./BitNumbering";
 
 *
 * */
-let tmpArr8 = new Uint8Array(8);
+var tmpArr8 = new Uint8Array(8);
 /*Attention!!! In JavaScript DataView by default is Big Endian!!!*/
-let tempDataView = new DataView(tmpArr8.buffer);
+var tempDataView = new DataView(tmpArr8.buffer);
 function assertUintMax(value, maxValue) {
     if (!Number.isInteger(value)) /* Checks integer and typeof === 'number'*/
-        throw new TypeError(`(${value}) must be integer`);
+        throw new TypeError("(".concat(value, ") must be integer"));
     if (!(value >= 0 && value <= maxValue))
-        throw new RangeError(`(${value}) must be Uint <= ${maxValue}`);
+        throw new RangeError("(".concat(value, ") must be Uint <= ").concat(maxValue));
     return value;
 }
 function assertIntMinMax(value, minValue, maxValue) {
     if (!Number.isInteger(value)) /* Checks integer and typeof === 'number'*/
-        throw new TypeError(`(${value}) must be integer`);
+        throw new TypeError("(".concat(value, ") must be integer"));
     if (!(minValue <= value && value <= maxValue))
-        throw new RangeError(`(${value}) must be ${minValue} <= Int <= ${maxValue}`);
+        throw new RangeError("(".concat(value, ") must be ").concat(minValue, " <= Int <= ").concat(maxValue));
     return value;
 }
-export class BitDataView {
-    /** Little or Big endian byte order, Little Endian is default in JS DataView. */
-    endianness = new Endianness();
-    /** Lest or Most significant bit order, MSB is default in JS DataView. */
-    bitNumbering = new BitNumbering();
-    /** automaticMemoryExpansion - false set memory static, unexpandable, fast. true allow extend memory for left and right of array*/
-    __automaticMemoryExpansion = false;
-    /*Data Uint8Array. Expandable to right or left.*/
-    __data;
-    /*Data size in bits. Expandable.
-    *  maximal 0xFFFFFFFE because C/C++ version of TelemokBitDataView used uint32_t links to head and tail
-    * */
-    __countBitsPushLimit = 0;
-    /* Count bits pushed to right.
-.push() increase it to 1.
-.pop() decrease it to 1.
-_countBitsPushed can not be > _countBitsPushLimit
-*/
-    __countBitsPushed = 0;
-    /*
-Count bits shifted from left.
-.shift() increase it to 1.
-.unshift() decrease it to 1.
-_countBitsShifted can not be > _countBitsPushed
-_countBitsShifted can not be < 0
-*/
-    __countBitsShifted = 0;
-    //@ts-ignore
-    _andBitInMemoryAddress_noAsserts;
-    //@ts-ignore
-    _orBitInMemoryAddress_noAsserts;
-    //@ts-ignore
-    _getAt_BitMemoryAddress_noAsserts;
+var BitDataView = /** @class */ (function () {
     /**
      * Creates an instance of BitDataView.
      *
@@ -109,7 +80,68 @@ _countBitsShifted can not be < 0
      * @description
      * LE and LSB by default
      */
-    constructor(bufferInfo) {
+    function BitDataView(bufferInfo) {
+        var _this = this;
+        /** Little or Big endian byte order, Little Endian is default in JS DataView. */
+        this.endianness = new Endianness_1.Endianness();
+        /** Lest or Most significant bit order, MSB is default in JS DataView. */
+        this.bitNumbering = new BitNumbering_1.BitNumbering();
+        /** automaticMemoryExpansion - false set memory static, unexpandable, fast. true allow extend memory for left and right of array*/
+        this.__automaticMemoryExpansion = false;
+        /*Data size in bits. Expandable.
+        *  maximal 0xFFFFFFFE because C/C++ version of TelemokBitDataView used uint32_t links to head and tail
+        * */
+        this.__countBitsPushLimit = 0;
+        /* Count bits pushed to right.
+    .push() increase it to 1.
+    .pop() decrease it to 1.
+    _countBitsPushed can not be > _countBitsPushLimit
+    */
+        this.__countBitsPushed = 0;
+        /*
+    Count bits shifted from left.
+    .shift() increase it to 1.
+    .unshift() decrease it to 1.
+    _countBitsShifted can not be > _countBitsPushed
+    _countBitsShifted can not be < 0
+    */
+        this.__countBitsShifted = 0;
+        this._andBitInMemoryAddressLsb_noAsserts = function (addressOfBitInMemory) {
+            var addressByte = addressOfBitInMemory >>> 3;
+            var addressBit = addressOfBitInMemory & 7;
+            var maskBit = 1 << addressBit;
+            _this.__data[addressByte] &= ~maskBit;
+        };
+        this._orBitInMemoryAddressLsb_noAsserts = function (addressOfBitInMemory) {
+            var addressByte = addressOfBitInMemory >>> 3;
+            var addressBit = (addressOfBitInMemory & 7);
+            var maskBit = 1 << addressBit;
+            _this.__data[addressByte] |= maskBit;
+        };
+        this._andBitInMemoryAddressMsb_noAsserts = function (addressOfBitInMemory) {
+            var addressByte = addressOfBitInMemory >>> 3;
+            var addressBit = 7 - (addressOfBitInMemory & 7);
+            var maskBit = 1 << addressBit;
+            _this.__data[addressByte] &= ~maskBit;
+        };
+        this._orBitInMemoryAddressMsb_noAsserts = function (addressOfBitInMemory) {
+            var addressByte = addressOfBitInMemory >>> 3;
+            var addressBit = 7 - (addressOfBitInMemory & 7);
+            var maskBit = 1 << addressBit;
+            _this.__data[addressByte] |= maskBit;
+        };
+        this._getAt_BitMemoryAddressLsb_noAsserts = function (addressOfBitInMemory) {
+            var addressByte = addressOfBitInMemory >>> 3;
+            var addressBit = addressOfBitInMemory & 7; // if LSB
+            var myByte = _this.__data[addressByte];
+            return (myByte >>> addressBit) & 1;
+        };
+        this._getAt_BitMemoryAddressMsb_noAsserts = function (addressOfBitInMemory) {
+            var addressByte = addressOfBitInMemory >>> 3;
+            var addressBit = 7 - addressOfBitInMemory & 7; // if MSB
+            var myByte = _this.__data[addressByte];
+            return (myByte >>> addressBit) & 1;
+        };
         this.__automaticMemoryExpansion = false;
         if (bufferInfo === undefined) {
             this.__data = new Uint8Array(64);
@@ -118,9 +150,9 @@ _countBitsShifted can not be < 0
         }
         else if (typeof bufferInfo === 'number') {
             if (!(Number.isInteger(bufferInfo) && bufferInfo > 0))
-                throw new TypeError(`Required uint count of bits`);
+                throw new TypeError("Required uint count of bits");
             this.__countBitsPushLimit = bufferInfo;
-            let bytes = Math.ceil(bufferInfo / 8);
+            var bytes = Math.ceil(bufferInfo / 8);
             this.__data = new Uint8Array(bytes);
         }
         else if (bufferInfo instanceof Uint8Array) {
@@ -135,83 +167,52 @@ _countBitsShifted can not be < 0
             throw new TypeError('Invalid bufferInfo type');
         }
         this.clear();
-        let initLsb = () => {
-            this._andBitInMemoryAddress_noAsserts = this._andBitInMemoryAddressLsb_noAsserts;
-            this._orBitInMemoryAddress_noAsserts = this._orBitInMemoryAddressLsb_noAsserts;
-            this._getAt_BitMemoryAddress_noAsserts = this._getAt_BitMemoryAddressLsb_noAsserts;
+        var initLsb = function () {
+            _this._andBitInMemoryAddress_noAsserts = _this._andBitInMemoryAddressLsb_noAsserts;
+            _this._orBitInMemoryAddress_noAsserts = _this._orBitInMemoryAddressLsb_noAsserts;
+            _this._getAt_BitMemoryAddress_noAsserts = _this._getAt_BitMemoryAddressLsb_noAsserts;
         };
-        let initMsb = () => {
-            this._andBitInMemoryAddress_noAsserts = this._andBitInMemoryAddressMsb_noAsserts;
-            this._orBitInMemoryAddress_noAsserts = this._orBitInMemoryAddressMsb_noAsserts;
-            this._getAt_BitMemoryAddress_noAsserts = this._getAt_BitMemoryAddressMsb_noAsserts;
+        var initMsb = function () {
+            _this._andBitInMemoryAddress_noAsserts = _this._andBitInMemoryAddressMsb_noAsserts;
+            _this._orBitInMemoryAddress_noAsserts = _this._orBitInMemoryAddressMsb_noAsserts;
+            _this._getAt_BitMemoryAddress_noAsserts = _this._getAt_BitMemoryAddressMsb_noAsserts;
         };
-        this.bitNumbering.addEventListener("change", () => {
-            if (this.bitNumbering.isLSB()) {
+        this.bitNumbering.addEventListener("change", function () {
+            if (_this.bitNumbering.isLSB()) {
                 initLsb();
             }
-            else if (this.bitNumbering.isMSB()) {
+            else if (_this.bitNumbering.isMSB()) {
                 initMsb();
             }
         });
         initLsb();
     }
-    get buffer() { return this.__data.buffer; }
+    Object.defineProperty(BitDataView.prototype, "buffer", {
+        get: function () { return this.__data.buffer; },
+        enumerable: false,
+        configurable: true
+    });
     /**
      * return bits size of stored data
      * @description single constructor
      */
-    getCountStoredBits() {
+    BitDataView.prototype.getCountStoredBits = function () {
         return this.__countBitsPushed - this.__countBitsShifted;
-    }
-    _andBitInMemoryAddressLsb_noAsserts = (addressOfBitInMemory) => {
-        let addressByte = addressOfBitInMemory >>> 3;
-        let addressBit = addressOfBitInMemory & 7;
-        let maskBit = 1 << addressBit;
-        this.__data[addressByte] &= ~maskBit;
-    };
-    _orBitInMemoryAddressLsb_noAsserts = (addressOfBitInMemory) => {
-        let addressByte = addressOfBitInMemory >>> 3;
-        let addressBit = (addressOfBitInMemory & 7);
-        let maskBit = 1 << addressBit;
-        this.__data[addressByte] |= maskBit;
-    };
-    _andBitInMemoryAddressMsb_noAsserts = (addressOfBitInMemory) => {
-        let addressByte = addressOfBitInMemory >>> 3;
-        let addressBit = 7 - (addressOfBitInMemory & 7);
-        let maskBit = 1 << addressBit;
-        this.__data[addressByte] &= ~maskBit;
-    };
-    _orBitInMemoryAddressMsb_noAsserts = (addressOfBitInMemory) => {
-        let addressByte = addressOfBitInMemory >>> 3;
-        let addressBit = 7 - (addressOfBitInMemory & 7);
-        let maskBit = 1 << addressBit;
-        this.__data[addressByte] |= maskBit;
-    };
-    _getAt_BitMemoryAddressLsb_noAsserts = (addressOfBitInMemory) => {
-        let addressByte = addressOfBitInMemory >>> 3;
-        let addressBit = addressOfBitInMemory & 7; // if LSB
-        let myByte = this.__data[addressByte];
-        return (myByte >>> addressBit) & 1;
-    };
-    _getAt_BitMemoryAddressMsb_noAsserts = (addressOfBitInMemory) => {
-        let addressByte = addressOfBitInMemory >>> 3;
-        let addressBit = 7 - addressOfBitInMemory & 7; // if MSB
-        let myByte = this.__data[addressByte];
-        return (myByte >>> addressBit) & 1;
     };
     /**
      * @description fast clear header of bitDataView
      */
-    clear() {
+    BitDataView.prototype.clear = function () {
         this.__countBitsPushed = 0;
         this.__countBitsShifted = 0;
-    }
+    };
     /**
      * @description make copy of bitDataView
      * @param {boolean} copyStrictPrivateStructure - False is default, faster. True is slower, but copy full instance structure.
      */
-    clone(copyStrictPrivateStructure = false) {
-        let copy = new BitDataView();
+    BitDataView.prototype.clone = function (copyStrictPrivateStructure) {
+        if (copyStrictPrivateStructure === void 0) { copyStrictPrivateStructure = false; }
+        var copy = new BitDataView();
         copy.__countBitsPushLimit = this.__countBitsPushLimit;
         if (copyStrictPrivateStructure) { /*clone as it*/
             copy.__countBitsPushed = this.__countBitsPushed;
@@ -219,62 +220,64 @@ _countBitsShifted can not be < 0
             copy.__data = new Uint8Array(this.__data);
         }
         else { /*clone faster and with minimal memory using and optimising _countBitsPushed and _countBitsShifted (only bytes will shifted, not bits)*/
-            let moveLeftBytes = Math.floor(this.__countBitsShifted / 8);
-            let length = Math.ceil(this.__countBitsPushed / 8) - moveLeftBytes;
+            var moveLeftBytes = Math.floor(this.__countBitsShifted / 8);
+            var length_1 = Math.ceil(this.__countBitsPushed / 8) - moveLeftBytes;
             copy.__countBitsShifted = this.__countBitsShifted % 8;
             copy.__countBitsPushed = /*length * 8 + */ this.__countBitsPushed - moveLeftBytes * 8;
-            copy.__data = this.__data.subarray(moveLeftBytes, moveLeftBytes + length);
+            copy.__data = this.__data.subarray(moveLeftBytes, moveLeftBytes + length_1);
         }
         copy.__automaticMemoryExpansion = this.__automaticMemoryExpansion;
         return copy;
-    }
-    getAvailableBitsToExpandRight() {
+    };
+    BitDataView.prototype.getAvailableBitsToExpandRight = function () {
         return 0xFFFFFFFE - this.__countBitsPushLimit;
-    }
-    getAvailableBitsToPush() {
+    };
+    BitDataView.prototype.getAvailableBitsToPush = function () {
         if (this.__automaticMemoryExpansion)
             return 0xFFFFFFFE - this.__countBitsPushed;
         return this.__countBitsPushLimit - this.__countBitsPushed;
-    }
-    getAvailableBitsToUnshift() {
+    };
+    BitDataView.prototype.getAvailableBitsToUnshift = function () {
         if (this.__automaticMemoryExpansion)
             return (Math.floor(0xFFFFFFFE / 8) - this.__data.length) * 8 + this.__countBitsShifted;
         return this.__countBitsShifted;
-    }
+    };
     /**
      * @param {number} expandBits - add 'expandBytes' to buffer size to right
      * @throws {TypeError}
      * @throws {RangeError}
      * @description if no size for push to BitDataView, size can be expanded
      */
-    expandRight(expandBits = 256 * 8) {
+    BitDataView.prototype.expandRight = function (expandBits) {
+        if (expandBits === void 0) { expandBits = 256 * 8; }
         if (!this.__automaticMemoryExpansion)
-            throw new Error(`BitDataView.expandRight() can't expand memory for ${expandBits} bits, because it deny. .setAutomaticMemoryExpansionOn() or find overflow problem.`);
+            throw new Error("BitDataView.expandRight() can't expand memory for ".concat(expandBits, " bits, because it deny. .setAutomaticMemoryExpansionOn() or find overflow problem."));
         assertUintMax(expandBits, 0xFFFFFFFE - this.__countBitsPushLimit); //0xFFFFFFE = (2^32)-2
         this.__countBitsPushLimit += expandBits;
-        let newUint8Array = new Uint8Array(Math.ceil(this.__countBitsPushLimit / 8)); //Увеличиваем сразу на много, чтобы часто это не делать.
+        var newUint8Array = new Uint8Array(Math.ceil(this.__countBitsPushLimit / 8)); //Увеличиваем сразу на много, чтобы часто это не делать.
         newUint8Array.set(this.__data, 0);
         this.__data = newUint8Array;
-    }
+    };
     /**
      * @param {number} expandBits - count bits to
      * @throws {TypeError}
      * @throws {RangeError}
      * @description Сложение двух чисел*/
-    expandLeft(expandBits = 256 * 8) {
+    BitDataView.prototype.expandLeft = function (expandBits) {
+        if (expandBits === void 0) { expandBits = 256 * 8; }
         if (!this.__automaticMemoryExpansion)
-            throw new Error(`BitDataView.expandLeft() can't expand memory for ${expandBits} bits, because it deny. .setAutomaticMemoryExpansionOn() or find overflow problem.`);
+            throw new Error("BitDataView.expandLeft() can't expand memory for ".concat(expandBits, " bits, because it deny. .setAutomaticMemoryExpansionOn() or find overflow problem."));
         assertUintMax(expandBits, 0xFFFFFFFF - this.__countBitsPushLimit); //0xFFFFFFF = (2^32)-1
         if (expandBits % 8)
-            throw new Error(`expandLeft only allow *8 bit count: 8, 16, 24, ...`);
-        let offsetBytes = expandBits >>> 3;
+            throw new Error("expandLeft only allow *8 bit count: 8, 16, 24, ...");
+        var offsetBytes = expandBits >>> 3;
         this.__countBitsPushLimit += expandBits;
         this.__countBitsPushed += expandBits;
         this.__countBitsShifted += expandBits;
-        let newUint8Array = new Uint8Array(Math.ceil(this.__countBitsPushLimit / 8));
+        var newUint8Array = new Uint8Array(Math.ceil(this.__countBitsPushLimit / 8));
         newUint8Array.set(this.__data, offsetBytes);
         this.__data = newUint8Array;
-    }
+    };
     /**
      * @return
      * @param checkPushBits
@@ -283,14 +286,15 @@ _countBitsShifted can not be < 0
      * @throws {RangeError}
      * @description after run .expandRightIfNeed(x) you can safe do .push(x, ...)
      */
-    expandRightIfNeed(checkPushBits, bitCountIfExpandRequired = 256 * 8) {
+    BitDataView.prototype.expandRightIfNeed = function (checkPushBits, bitCountIfExpandRequired) {
+        if (bitCountIfExpandRequired === void 0) { bitCountIfExpandRequired = 256 * 8; }
         //console.log('expandRightIfNeed', checkPushBits,expandBytes,this.__countBitsPushed , this.__countBitsPushLimit)
         if (this.__countBitsPushed + checkPushBits > this.__countBitsPushLimit) {
             if (bitCountIfExpandRequired < checkPushBits)
                 bitCountIfExpandRequired = checkPushBits;
             this.expandRight(bitCountIfExpandRequired);
         }
-    }
+    };
     /**
      * @description Сложение двух чисел
      * @return
@@ -300,28 +304,31 @@ _countBitsShifted can not be < 0
      * @throws {RangeError}
      * @description after run .expandLeftIfNeed(x) you can safe do .unshift(x, ...)
      */
-    expandLeftIfNeed(checkUnshiftBits, bitCountIfExpandRequired = 256 * 8) {
+    BitDataView.prototype.expandLeftIfNeed = function (checkUnshiftBits, bitCountIfExpandRequired) {
+        if (bitCountIfExpandRequired === void 0) { bitCountIfExpandRequired = 256 * 8; }
         if (this.__countBitsShifted - checkUnshiftBits < 0) {
             if (bitCountIfExpandRequired < checkUnshiftBits)
                 bitCountIfExpandRequired = checkUnshiftBits;
             this.expandLeft(bitCountIfExpandRequired);
         }
-    }
-    _importUint8Array_noAsserts(uint8Array, doClone = true) {
+    };
+    BitDataView.prototype._importUint8Array_noAsserts = function (uint8Array, doClone) {
+        if (doClone === void 0) { doClone = true; }
         this.__countBitsPushLimit = this.__countBitsPushed = uint8Array.length * 8;
         this.__countBitsShifted = 0;
         this.__data = doClone ? uint8Array.slice() : uint8Array;
-    }
-    importUint8Array(uint8Array) {
+    };
+    BitDataView.prototype.importUint8Array = function (uint8Array) {
         this._importUint8Array_noAsserts(uint8Array);
-    }
-    exportUnit8Array(littleEndian = false) {
-        let countBitsToShift = this.getCountStoredBits();
-        let countBytes = Math.ceil(countBitsToShift / 8);
-        let uint8Array = new Uint8Array(countBytes);
-        for (let i = 0; countBitsToShift > 0; i++) {
-            let count = Math.min(countBitsToShift, 8);
-            let resultByteIndex = littleEndian ? countBytes - 1 - i : i;
+    };
+    BitDataView.prototype.exportUnit8Array = function (littleEndian) {
+        if (littleEndian === void 0) { littleEndian = false; }
+        var countBitsToShift = this.getCountStoredBits();
+        var countBytes = Math.ceil(countBitsToShift / 8);
+        var uint8Array = new Uint8Array(countBytes);
+        for (var i = 0; countBitsToShift > 0; i++) {
+            var count = Math.min(countBitsToShift, 8);
+            var resultByteIndex = littleEndian ? countBytes - 1 - i : i;
             uint8Array[resultByteIndex] = this._getAt_Uint8orLess_noAsserts(i * 8, count);
             countBitsToShift -= 8;
         }
@@ -336,30 +343,30 @@ _countBitsShifted can not be < 0
         // if(littleEndian)
         // 	uint8Array.reverse();
         return uint8Array;
-    }
-    toString01() {
-        let s = "";
-        for (let i = 0, n = this.getCountStoredBits(); i < n; i++)
+    };
+    BitDataView.prototype.toString01 = function () {
+        var s = "";
+        for (var i = 0, n = this.getCountStoredBits(); i < n; i++)
             s += this._getAt_Bit_noAsserts(i);
         return /*this.getCountStoredBits()+": "+*/ s;
-    }
+    };
     /**
      * @return {string} - information about bitDataView
      * */
-    toString() {
+    BitDataView.prototype.toString = function () {
         // hex: "${this.exportHex()}
-        return `BitDataView = {countBitsShifted: ${this.__countBitsShifted}, countBitsPushed: ${this.__countBitsPushed}, getCountStoredBits: ${this.getCountStoredBits()}, countBitsPushLimit: ${this.__countBitsPushLimit}."}`;
-    }
-    _push_Nothing_noAsserts(countBits) {
+        return "BitDataView = {countBitsShifted: ".concat(this.__countBitsShifted, ", countBitsPushed: ").concat(this.__countBitsPushed, ", getCountStoredBits: ").concat(this.getCountStoredBits(), ", countBitsPushLimit: ").concat(this.__countBitsPushLimit, ".\"}");
+    };
+    BitDataView.prototype._push_Nothing_noAsserts = function (countBits) {
         this.__countBitsPushed += countBits;
-    }
-    push_Nothing(countBits) {
+    };
+    BitDataView.prototype.push_Nothing = function (countBits) {
         assertUintMax(countBits, this.getAvailableBitsToPush());
         this._push_Nothing_noAsserts(countBits);
-    }
-    _unshift_Nothing_noAsserts(countBits) {
+    };
+    BitDataView.prototype._unshift_Nothing_noAsserts = function (countBits) {
         this.__countBitsShifted += countBits;
-    }
+    };
     /* DATA SET BLOCK*/
     /* DATA SET BLOCK*/
     // _andBitInMemoryAddress_noAsserts(addressOfBitInMemory:number) {
@@ -383,59 +390,62 @@ _countBitsShifted can not be < 0
      * @param {number} bitValue - is boolean. Used as "if(bitValue)"
      * @param {number} addressOfBitInMemory - is 32 bit unsigned integer. Not asserted for raise up work speed. Bit address of memory position, not bit index in array.
      */
-    _setBitInMemoryAddress_noAsserts(bitValue, addressOfBitInMemory) {
+    BitDataView.prototype._setBitInMemoryAddress_noAsserts = function (bitValue, addressOfBitInMemory) {
         if (bitValue)
             this._orBitInMemoryAddress_noAsserts(addressOfBitInMemory);
         else
             this._andBitInMemoryAddress_noAsserts(addressOfBitInMemory);
         /* http://graphics.stanford.edu/~seander/bithacks.html#ConditionalSetOrClearBitsWithoutBranching bit hacks for superscalar CPUs dont' work in JavaScript because: limited to 32 bits, almost 53 bits*/
-    }
+    };
     /**
      * SET: write boolean by virtual index at begin of bitDataView and don't change size.
      * @param {number} bitIndexAt - Integer bit index at begin. Not asserted.
      * @param {number} valueBit - Range: false or true. Not asserted.
      * @access protected
      */
-    _setAt_Bit_noAsserts(bitIndexAt, valueBit) {
+    BitDataView.prototype._setAt_Bit_noAsserts = function (bitIndexAt, valueBit) {
         this._setBitInMemoryAddress_noAsserts(valueBit, this.__countBitsShifted + bitIndexAt);
-    }
+    };
     /** get bit by virtual index at begin of bitDataView.
      * @param {number} bitIndexAt - is 32 bit unsigned integer. Bit address of memory position, not bit index in array.
      * @return {number} - return 0 or 1 bit value.
      * @description
      */
-    _getAt_Bit_noAsserts(bitIndexAt) {
+    BitDataView.prototype._getAt_Bit_noAsserts = function (bitIndexAt) {
         return this._getAt_BitMemoryAddress_noAsserts(this.__countBitsShifted + bitIndexAt);
-    }
+    };
     /**  push (add to right of bitDataView) 1 bit.
      * @param {boolean} bitValue - 0/1 true/false value to add to right side of bitDataView
      * @description - work faster
      */
-    _push_Bit_noAssertsNoExpand(bitValue) {
+    BitDataView.prototype._push_Bit_noAssertsNoExpand = function (bitValue) {
         this._setBitInMemoryAddress_noAsserts(bitValue, this.__countBitsPushed++);
         //this.__countBitsPushed++;
-    }
+    };
     /**  push (add to right of bitDataView) some similar bits. Like fill() function.
      * @param {boolean} bitValue - 0/1 true/false value to add to right side of bitDataView
      * @param {number} count - count of similar bits to add. Default = 1.
      * @description - work slower
      */
-    push_Bits(bitValue, count = 1) {
+    BitDataView.prototype.push_Bits = function (bitValue, count) {
+        if (count === void 0) { count = 1; }
         assertUintMax(bitValue, 1); //0 or 1
         assertUintMax(count, this.getAvailableBitsToPush()); //count 0 allowed, no problems
         this.expandRightIfNeed(count);
         for (; count; count--)
             this._push_Bit_noAssertsNoExpand(bitValue);
-    }
+    };
     /** set (set to custom place of bitDataView) unsigned integer.
      * @param {number} bitIndexAt - Bit index from begin of bitDataView. Not asserted.
      * @param {number} countBitsToSet - Count bits from 0 to 8 of value to get. Not asserted.
      * @param {number} byteData
      * @return {number}
      */
-    _setAt_Uint8orLess_noAsserts(bitIndexAt = 0, countBitsToSet = 8, byteData) {
+    BitDataView.prototype._setAt_Uint8orLess_noAsserts = function (bitIndexAt, countBitsToSet, byteData) {
+        if (bitIndexAt === void 0) { bitIndexAt = 0; }
+        if (countBitsToSet === void 0) { countBitsToSet = 8; }
         //console.log(`${bitIndexAt}, ${countBitsToSet}, ${byteData}`)
-        let memoryAddress = this.__countBitsShifted + bitIndexAt;
+        var memoryAddress = this.__countBitsShifted + bitIndexAt;
         for ( /*let bitMask = 1*/; countBitsToSet; countBitsToSet--) {
             //this._setBitInMemoryAddress_noAsserts(byteData & bitMask, memoryAddress++);
             //bitMask <<= 1;
@@ -452,22 +462,24 @@ _countBitsShifted can not be < 0
             //console.log(`all = ${this.toString(2)}`)
             byteData >>>= 1;
         }
-    }
+    };
     /** get (take from custom place of bitDataView) unsigned integer.
      * @param {number} bitIndexAt - Bit index from begin of bitDataView. Not asserted.
      * @param {number} countBitsToGet - Count bits from 0 to 8 of value to get. Not asserted.
      * @return {number} - byteData
      */
-    _getAt_Uint8orLess_noAsserts(bitIndexAt = 0, countBitsToGet = 8) {
-        let memoryAddress = this.__countBitsShifted + bitIndexAt;
-        let byteData = 0;
-        for (let bitMask = 1; countBitsToGet; countBitsToGet--) {
+    BitDataView.prototype._getAt_Uint8orLess_noAsserts = function (bitIndexAt, countBitsToGet) {
+        if (bitIndexAt === void 0) { bitIndexAt = 0; }
+        if (countBitsToGet === void 0) { countBitsToGet = 8; }
+        var memoryAddress = this.__countBitsShifted + bitIndexAt;
+        var byteData = 0;
+        for (var bitMask = 1; countBitsToGet; countBitsToGet--) {
             if (this._getAt_BitMemoryAddress_noAsserts(memoryAddress++))
                 byteData |= bitMask;
             bitMask <<= 1;
         }
         return byteData;
-    }
+    };
     /** get (take from custom place of bitDataView) unsigned integer.
      * @param {number} bitIndexAt - Bit index from begin of bitDataView. Not asserted.
      * @param {number} countBitsToGet - Count bits from 0 to 8 of value to get. Not asserted.
@@ -485,14 +497,16 @@ _countBitsShifted can not be < 0
      * @param {number} valueUint - Range: 0 <= value <= 0x1FFFFFFFFFFFFF (2 ^ 53 - 1). Not asserted.
      * @return {number} - value
      */
-    _setAt_Uint53orLess_noAsserts(bitIndexAt = 0, countBitsToSet = 53, valueUint /*,  littleEndian = false*/) {
+    BitDataView.prototype._setAt_Uint53orLess_noAsserts = function (bitIndexAt, countBitsToSet, valueUint /*,  littleEndian = false*/) {
+        if (bitIndexAt === void 0) { bitIndexAt = 0; }
+        if (countBitsToSet === void 0) { countBitsToSet = 53; }
         //console.log("_setAt_Uint53orLess_noAsserts",this.__countBitsShifted,this.__countBitsPushed,"bitIndexAt="+bitIndexAt,"cntBits="+countBitsToSet,"val="+valueUint.toString(16));
         if (this.endianness.isLittleEndian()) //littleEndian = true in C++ TelemokBitDataView
          {
             //console.log(`setAt(${bitIndexAt}).LE.Uint${countBitsToSet}(${valueUint})`);
             for (; countBitsToSet > 0;) //TO DO del countBitsToSet, use bitIndexAt in for
              {
-                let subBitsCount = Math.min(countBitsToSet, 8);
+                var subBitsCount = Math.min(countBitsToSet, 8);
                 this._setAt_Uint8orLess_noAsserts(bitIndexAt, subBitsCount, valueUint);
                 valueUint = Math.floor(valueUint / 0x100); /* "valueUint = (valueUint >> 8) & 0xFF;" work only for first 32 bits */
                 countBitsToSet -= 8;
@@ -501,27 +515,29 @@ _countBitsShifted can not be < 0
         }
         else {
             //console.log(`setAt(${bitIndexAt}).BE.Uint${countBitsToSet}(${valueUint})`);
-            for (let index = 0; countBitsToSet > 0; index += 8) {
-                let subBitsCount = Math.min(countBitsToSet, 8);
+            for (var index = 0; countBitsToSet > 0; index += 8) {
+                var subBitsCount = Math.min(countBitsToSet, 8);
                 this._setAt_Uint8orLess_noAsserts(bitIndexAt + countBitsToSet - subBitsCount, subBitsCount, valueUint);
                 valueUint = Math.floor(valueUint / 0x100); /* "valueUint = (valueUint >> 8) & 0xFF;" work only for first 32 bits */
                 countBitsToSet -= 8;
             }
         }
-    }
+    };
     /** set () unsigned integer.
      * @param {number} bitIndexAt - Bit index from begin of bitDataView. Not asserted.
      * @param {number} countBitsToSet - Count bits from 0 to 53 of valueUint to get. Not asserted.
      * @param {number} valueUint - valueUint
      */
-    _setAt_Int53orLess_noAsserts(bitIndexAt = 0, countBitsToSet = 54, valueUint) {
+    BitDataView.prototype._setAt_Int53orLess_noAsserts = function (bitIndexAt, countBitsToSet, valueUint) {
+        if (bitIndexAt === void 0) { bitIndexAt = 0; }
+        if (countBitsToSet === void 0) { countBitsToSet = 54; }
         //console.log("_setAt_Int53orLess_noAsserts",this.__countBitsShifted,this.__countBitsPushed,"bitIndexAt="+bitIndexAt,"cntBits="+countBitsToSet,"val="+valueUint.toString(16));
         if (this.endianness.isLittleEndian()) //littleEndian = true in C++ TelemokBitDataView
          {
             //console.log(`setAt(${bitIndexAt}).LE.Int${countBitsToSet}(${valueUint})`);
             for (; countBitsToSet > 0;) //TO DO del countBitsToSet, use bitIndexAt in for
              {
-                let subBitsCount = Math.min(countBitsToSet, 8);
+                var subBitsCount = Math.min(countBitsToSet, 8);
                 this._setAt_Uint8orLess_noAsserts(bitIndexAt, subBitsCount, valueUint);
                 valueUint = Math.floor(valueUint / 0x100); /* "valueUint = (valueUint >> 8) & 0xFF;" work only for first 32 bits */
                 countBitsToSet -= 7;
@@ -530,25 +546,27 @@ _countBitsShifted can not be < 0
         }
         else {
             //console.log(`setAt(${bitIndexAt}).BE.Int${countBitsToSet}(${valueUint})`);
-            for (let index = 0; countBitsToSet > 0; index += 8) {
-                let subBitsCount = Math.min(countBitsToSet, 8);
+            for (var index = 0; countBitsToSet > 0; index += 8) {
+                var subBitsCount = Math.min(countBitsToSet, 8);
                 this._setAt_Uint8orLess_noAsserts(bitIndexAt + countBitsToSet - subBitsCount, subBitsCount, valueUint);
                 valueUint = Math.floor(valueUint / 0x100); /* "valueUint = (valueUint >> 8) & 0xFF;" work only for first 32 bits */
                 countBitsToSet -= 8;
             }
         }
-    }
+    };
     /** get (take from custom place of bitDataView) unsigned integer.
      * @param {number} bitIndexAt - Bit index from begin of bitDataView. Not asserted.
      * @param {number} countBitsToGet - Count bits from 0 to 53 of valueUint to get. Not asserted.
      * @return {number}  - Range: 0 <= value <= 0x1FFFFFFFFFFFFF (2 ^ 53 - 1). Not asserted.
      */
-    _getAt_Uint53orLess_noAsserts(bitIndexAt = 0, countBitsToGet = 53) {
+    BitDataView.prototype._getAt_Uint53orLess_noAsserts = function (bitIndexAt, countBitsToGet) {
         //let s = `_getAt_Uint53orLess_noAsserts(${bitIndexAt}, ${countBitsToGet}, ${littleEndian}) =`;
-        let result = 0;
+        if (bitIndexAt === void 0) { bitIndexAt = 0; }
+        if (countBitsToGet === void 0) { countBitsToGet = 53; }
+        var result = 0;
         if (this.endianness.isLittleEndian()) /* littleEndian is reverse for shift and pop */ {
-            for (let byteMultiplier = 1; countBitsToGet > 0; bitIndexAt += 8) {
-                let byteData = this._getAt_Uint8orLess_noAsserts(bitIndexAt, Math.min(countBitsToGet, 8));
+            for (var byteMultiplier = 1; countBitsToGet > 0; bitIndexAt += 8) {
+                var byteData = this._getAt_Uint8orLess_noAsserts(bitIndexAt, Math.min(countBitsToGet, 8));
                 countBitsToGet -= 8;
                 result += byteData * byteMultiplier; /* Don't use "result |= (byteData << (8 * byteIndex));" because it work for first 32 bits */
                 byteMultiplier *= 0x100;
@@ -556,8 +574,8 @@ _countBitsShifted can not be < 0
         }
         else {
             for (; countBitsToGet > 0; bitIndexAt += 8) {
-                let count = Math.min(countBitsToGet, 8);
-                let byteData = this._getAt_Uint8orLess_noAsserts(bitIndexAt, count);
+                var count = Math.min(countBitsToGet, 8);
+                var byteData = this._getAt_Uint8orLess_noAsserts(bitIndexAt, count);
                 countBitsToGet -= 8;
                 result *= (1 << count); /* Don't use "result <<= 8;" because it work for first 32 bits */
                 result += byteData; /* Don't use "result |= byteData;" because it work for first 32 bits */
@@ -565,21 +583,23 @@ _countBitsShifted can not be < 0
         }
         //console.log(`${s} "${result.toString(2)}"`);
         return result;
-    }
+    };
     /** get (take from custom place of bitDataView) unsigned integer.
      * @param {number} bitIndexAt - Bit index from begin of bitDataView. Not asserted.
      * @param {number} countBitsToGet - Count bits from 0 to 53 of valueUint to get. Not asserted.
      * @return {number} - valueUint
      */
-    _getAt_Int53orLess_noAsserts(bitIndexAt = 0, countBitsToGet = 54) {
-        let result = 0;
-        let countBitsToGetMantissa = countBitsToGet;
+    BitDataView.prototype._getAt_Int53orLess_noAsserts = function (bitIndexAt, countBitsToGet) {
+        if (bitIndexAt === void 0) { bitIndexAt = 0; }
+        if (countBitsToGet === void 0) { countBitsToGet = 54; }
+        var result = 0;
+        var countBitsToGetMantissa = countBitsToGet;
         //let maskSign = Math.pow(2, countBitsToGetMantissa - 1);
-        let maskNegative = Math.pow(2, countBitsToGetMantissa) - 1;
+        var maskNegative = Math.pow(2, countBitsToGetMantissa) - 1;
         if (this.endianness.isLittleEndian()) /* littleEndian is reverse for shift and pop */ {
             //console.log(`getAt(${bitIndexAt}).LE.Int${countBitsToGet}()`);
-            for (let byteMultiplier = 1; countBitsToGetMantissa > 0; bitIndexAt += 8) {
-                let byteData = this._getAt_Uint8orLess_noAsserts(bitIndexAt, Math.min(countBitsToGetMantissa, 8));
+            for (var byteMultiplier = 1; countBitsToGetMantissa > 0; bitIndexAt += 8) {
+                var byteData = this._getAt_Uint8orLess_noAsserts(bitIndexAt, Math.min(countBitsToGetMantissa, 8));
                 countBitsToGetMantissa -= 8;
                 result += byteData * byteMultiplier; /* Don't use "result |= (byteData << (8 * byteIndex));" because it work for first 32 bits */
                 byteMultiplier *= 0x100;
@@ -590,29 +610,31 @@ _countBitsShifted can not be < 0
             //countBitsToGetMantissa--;
             //bitIndexAt++;
             for (; countBitsToGetMantissa > 0; bitIndexAt += 8) {
-                let count = Math.min(countBitsToGetMantissa, 8);
-                let byteData = this._getAt_Uint8orLess_noAsserts(bitIndexAt, count);
+                var count = Math.min(countBitsToGetMantissa, 8);
+                var byteData = this._getAt_Uint8orLess_noAsserts(bitIndexAt, count);
                 countBitsToGetMantissa -= 8;
                 result *= (1 << count); /* Don't use "result <<= 8;" because it work for first 32 bits */
                 result += byteData; /* Don't use "result |= byteData;" because it work for first 32 bits */
             }
         }
-        let sign = Math.floor(result / (2 ** (countBitsToGet - 2))) & 1;
+        var sign = Math.floor(result / (Math.pow(2, (countBitsToGet - 2)))) & 1;
         //let sign = (maskSign & result) ? true : false;
         //console.log("sign",sign,maskSign,result)
         if (sign === 1)
             result = result - maskNegative - 1;
         //console.log(`getAt result = ${result}`);
         return result;
-    }
+    };
     /** get (take from custom place of bitDataView) unsigned integer.
      * @param {number} bitIndexAt - Bit index from begin of bitDataView. Not asserted.
      * @param {number} countBitsToSet - Count bits from 0 to 64 of value to get. Not asserted.
      * @param {BigInt} value -
      */
-    _setAt_BigUint64orLess_noAsserts(bitIndexAt = 0, countBitsToSet = 64, value) {
+    BitDataView.prototype._setAt_BigUint64orLess_noAsserts = function (bitIndexAt, countBitsToSet, value) {
+        if (bitIndexAt === void 0) { bitIndexAt = 0; }
+        if (countBitsToSet === void 0) { countBitsToSet = 64; }
         tempDataView.setBigUint64(0, value, this.endianness.isLittleEndian());
-        let a = 0;
+        var a = 0;
         // if(this.endianness.isLittleEndian())//littleEndian = true in C++ TelemokBitDataView
         // {
         // 	for(; countBitsToSet > 0; )
@@ -631,7 +653,7 @@ _countBitsShifted can not be < 0
         // else
         {
             for (; countBitsToSet > 0;) {
-                let subBitsCount = Math.min(countBitsToSet, 8);
+                var subBitsCount = Math.min(countBitsToSet, 8);
                 this._setAt_Uint8orLess_noAsserts(bitIndexAt + countBitsToSet - subBitsCount, subBitsCount, tempDataView.getUint8(7 - a));
                 //this._setAt_Uint8orLess_noAsserts(bitIndexAt+countBitsToSet - subBitsCount, subBitsCount, Number(value & 0xFFn));
                 //value >>= 8n;
@@ -639,16 +661,18 @@ _countBitsShifted can not be < 0
                 a++;
             }
         }
-    }
+    };
     /** get (take from custom place of bitDataView) unsigned integer.
      * @param {number} bitIndexAt - Bit index from begin of bitDataView. Not asserted.
      * @param {number} countBitsToSet - Count bits from 0 to 64 of value to get. Not asserted.
      * @param {BigInt} valueBigInt - Range: -0x8000000000000000n (2^63) <= value <= 0x7FFFFFFFFFFFFFFFn (2^63-1). Not asserted.
      */
-    _setAt_BigInt64orLess_noAsserts(bitIndexAt = 0, countBitsToSet = 64, valueBigInt) {
+    BitDataView.prototype._setAt_BigInt64orLess_noAsserts = function (bitIndexAt, countBitsToSet, valueBigInt) {
+        if (bitIndexAt === void 0) { bitIndexAt = 0; }
+        if (countBitsToSet === void 0) { countBitsToSet = 64; }
         tempDataView.setBigUint64(0, valueBigInt, !this.endianness.isLittleEndian());
-        for (let a = 0; countBitsToSet > 0; a++) {
-            let subBitsCount = Math.min(countBitsToSet, 8);
+        for (var a = 0; countBitsToSet > 0; a++) {
+            var subBitsCount = Math.min(countBitsToSet, 8);
             this._setAt_Uint8orLess_noAsserts(bitIndexAt + countBitsToSet - subBitsCount, subBitsCount, tempDataView.getUint8(a));
             //this._setAt_Uint8orLess_noAsserts(bitIndexAt+countBitsToSet - subBitsCount, subBitsCount, Number(valueBigInt & 0xFFn));
             //valueBigInt >>= 8n;
@@ -678,16 +702,18 @@ _countBitsShifted can not be < 0
         // 		countBitsToSet -= 8;
         // 	}
         // }
-    }
+    };
     /** get (take from custom place of bitDataView) unsigned integer.
      * @param {number} bitIndexAt - Bit index from begin of bitDataView. Not asserted.
      * @param {number} countBitsToGet - Count bits from 0 to 64 of value to get. Not asserted.
      */
-    _getAt_BigUint64orLess_noAsserts(bitIndexAt = 0, countBitsToGet = 64) {
-        let result = 0n;
+    BitDataView.prototype._getAt_BigUint64orLess_noAsserts = function (bitIndexAt, countBitsToGet) {
+        if (bitIndexAt === void 0) { bitIndexAt = 0; }
+        if (countBitsToGet === void 0) { countBitsToGet = 64; }
+        var result = 0n;
         if (this.endianness.isLittleEndian()) /* littleEndian is reverse for shift and pop */ {
-            for (let byteMultiplier = 1n; countBitsToGet > 0; bitIndexAt += 8) {
-                let byteData = BigInt(this._getAt_Uint8orLess_noAsserts(bitIndexAt, Math.min(countBitsToGet, 8)));
+            for (var byteMultiplier = 1n; countBitsToGet > 0; bitIndexAt += 8) {
+                var byteData = BigInt(this._getAt_Uint8orLess_noAsserts(bitIndexAt, Math.min(countBitsToGet, 8)));
                 countBitsToGet -= 8;
                 result += byteData * byteMultiplier; /* Don't use "result |= (byteData << (8 * byteIndex));" because it work for first 32 bits */
                 byteMultiplier <<= 8n;
@@ -696,8 +722,8 @@ _countBitsShifted can not be < 0
         }
         else {
             for (; countBitsToGet > 0; bitIndexAt += 8) {
-                let count = Math.min(countBitsToGet, 8);
-                let byteData = BigInt(this._getAt_Uint8orLess_noAsserts(bitIndexAt, count));
+                var count = Math.min(countBitsToGet, 8);
+                var byteData = BigInt(this._getAt_Uint8orLess_noAsserts(bitIndexAt, count));
                 countBitsToGet -= 8;
                 result <<= BigInt(count);
                 result |= byteData;
@@ -705,19 +731,21 @@ _countBitsShifted can not be < 0
         }
         //console.log(`${s} "${result.toString(2)}"`);
         return result;
-    }
+    };
     /** get (take from custom place of bitDataView) signed integer.
      * @param {number} bitIndexAt - Bit index from begin of bitDataView. Not asserted.
      * @param {number} countBitsToGet - Count bits from 0 to 64 of value to get. Not asserted.
      */
-    _getAt_BigInt64orLess_noAsserts(bitIndexAt = 0, countBitsToGet = 64) {
+    BitDataView.prototype._getAt_BigInt64orLess_noAsserts = function (bitIndexAt, countBitsToGet) {
+        if (bitIndexAt === void 0) { bitIndexAt = 0; }
+        if (countBitsToGet === void 0) { countBitsToGet = 64; }
         //let countBitsToGet2 = countBitsToGet;
-        let maskSign = 1n << BigInt(countBitsToGet - 1);
-        let maskNegative = (1n << BigInt(countBitsToGet - 1)) - 1n;
-        let result = 0n;
+        var maskSign = 1n << BigInt(countBitsToGet - 1);
+        var maskNegative = (1n << BigInt(countBitsToGet - 1)) - 1n;
+        var result = 0n;
         if (this.endianness.isLittleEndian()) /* littleEndian is reverse for shift and pop */ {
-            for (let byteMultiplier = 1n; countBitsToGet > 0; bitIndexAt += 8) {
-                let byteData = BigInt(this._getAt_Uint8orLess_noAsserts(bitIndexAt, Math.min(countBitsToGet, 8)));
+            for (var byteMultiplier = 1n; countBitsToGet > 0; bitIndexAt += 8) {
+                var byteData = BigInt(this._getAt_Uint8orLess_noAsserts(bitIndexAt, Math.min(countBitsToGet, 8)));
                 countBitsToGet -= 8;
                 result += byteData * byteMultiplier; /* Don't use "result |= (byteData << (8 * byteIndex));" because it work for first 32 bits */
                 byteMultiplier <<= 8n;
@@ -726,15 +754,15 @@ _countBitsShifted can not be < 0
         }
         else {
             for (; countBitsToGet > 0; bitIndexAt += 8) {
-                let count = Math.min(countBitsToGet, 8);
-                let byteData = BigInt(this._getAt_Uint8orLess_noAsserts(bitIndexAt, count));
+                var count = Math.min(countBitsToGet, 8);
+                var byteData = BigInt(this._getAt_Uint8orLess_noAsserts(bitIndexAt, count));
                 countBitsToGet -= 8;
                 result <<= BigInt(count);
                 result |= byteData;
             }
         }
         //let sign = (Math.floor(result / (2 ** (countBitsToGet2 - 2)))&1) ? true : false;
-        let sign = !!(maskSign & result);
+        var sign = !!(maskSign & result);
         //console.log("sign",sign,maskSign,result)
         //console.log(`getAt64A  ${result.toString(2)}`);
         if (sign) {
@@ -751,25 +779,29 @@ _countBitsShifted can not be < 0
         //console.log(`getAt64C ${result.toString(2)}`);
         //console.log(`${s} "${result.toString(2)}"`);
         return result;
-    }
-    setAt_Uint8Array_noExpandNoAsserts(bitIndexAt = 0, uint8Array, littleEndian = false) {
+    };
+    BitDataView.prototype.setAt_Uint8Array_noExpandNoAsserts = function (bitIndexAt, uint8Array, littleEndian) {
+        if (bitIndexAt === void 0) { bitIndexAt = 0; }
+        if (littleEndian === void 0) { littleEndian = false; }
         if (littleEndian) {
             //for(let i = uint8Array.length - 1; i >= 0; i--)
-            for (let i = uint8Array.length - 1; i >= 0; i--)
+            for (var i = uint8Array.length - 1; i >= 0; i--)
                 this._setAt_Uint8orLess_noAsserts(bitIndexAt + i * 8, 8, uint8Array[uint8Array.length - 1 - i]);
         }
         else {
-            for (let i = 0; i < uint8Array.length; i++)
+            for (var i = 0; i < uint8Array.length; i++)
                 this._setAt_Uint8orLess_noAsserts(bitIndexAt + i * 8, 8, uint8Array[i]);
         }
-    }
-    _setUntil_Uint8Array_noExpandNoAsserts(bitIndexUntil = 0, uint8Array, littleEndian = false) {
+    };
+    BitDataView.prototype._setUntil_Uint8Array_noExpandNoAsserts = function (bitIndexUntil, uint8Array, littleEndian) {
+        if (bitIndexUntil === void 0) { bitIndexUntil = 0; }
+        if (littleEndian === void 0) { littleEndian = false; }
         return this.setAt_Uint8Array_noExpandNoAsserts(this.getCountStoredBits() - bitIndexUntil - uint8Array.length * 8, uint8Array, littleEndian);
-    }
+    };
     /**  push (add to right of bitDataView) Uint8Array instance.
      * @param {Uint8Array} uint8Array - uint8Array data to push
      */
-    push_Uint8Array(uint8Array /*, littleEndian:boolean = false*/) {
+    BitDataView.prototype.push_Uint8Array = function (uint8Array /*, littleEndian:boolean = false*/) {
         this.expandRightIfNeed(uint8Array.length * 8);
         this.__countBitsPushed += uint8Array.length * 8;
         this._setUntil_Uint8Array_noExpandNoAsserts(0, uint8Array, false);
@@ -783,15 +815,17 @@ _countBitsShifted can not be < 0
         // 	for(let i = 0; i < uint8Array.length; i++)
         // 		this._push_Uint8orLess_noExpandNoAsserts(8, uint8Array[i]);
         // }
-    }
-    _getAt_Uint8Array_noAsserts(address, countBitsToGet = this.getCountStoredBits(), littleEndian = false) {
+    };
+    BitDataView.prototype._getAt_Uint8Array_noAsserts = function (address, countBitsToGet, littleEndian) {
+        if (countBitsToGet === void 0) { countBitsToGet = this.getCountStoredBits(); }
+        if (littleEndian === void 0) { littleEndian = false; }
         // if(this.__countBitsShifted + bitsEach * count > this.__countBitsPushed)
         // 	throw new Error(`BitDataView.shift_UIntegers(bitsEach = ${bitsEach}, countIfArray = ${countIfArray}) not enough ${bitsEach * count} bits, only ${this.getCountStoredBits()} bits stored.`);
-        let countBytes = Math.ceil(countBitsToGet / 8);
-        let uint8Array = new Uint8Array(countBytes);
-        for (let i = 0; countBitsToGet > 0; i++) {
-            let count = countBitsToGet >= 8 ? 8 : countBitsToGet;
-            let resultByteIndex = littleEndian ? countBytes - 1 - i : i;
+        var countBytes = Math.ceil(countBitsToGet / 8);
+        var uint8Array = new Uint8Array(countBytes);
+        for (var i = 0; countBitsToGet > 0; i++) {
+            var count = countBitsToGet >= 8 ? 8 : countBitsToGet;
+            var resultByteIndex = littleEndian ? countBytes - 1 - i : i;
             uint8Array[resultByteIndex] = this._getAt_Uint8orLess_noAsserts(address, count);
             address += 8;
             countBitsToGet -= 8;
@@ -800,21 +834,23 @@ _countBitsShifted can not be < 0
         // if(littleEndian)
         // 	uint8Array.reverse();
         return uint8Array;
-    }
+    };
     /**  shift (take from left of bitDataView) Unit8Array.
      * @param {number} countBitsToShift - Count bits to shift. If count % 8 != 0, free spaces will be filled by 0. Asserted.
      * @param {boolean} littleEndian - undefined by default. Byte order. Asserted.
      * @return {Uint8Array} -
      */
-    shift_Uint8Array(countBitsToShift = this.getCountStoredBits(), littleEndian = false) {
+    BitDataView.prototype.shift_Uint8Array = function (countBitsToShift, littleEndian) {
+        if (countBitsToShift === void 0) { countBitsToShift = this.getCountStoredBits(); }
+        if (littleEndian === void 0) { littleEndian = false; }
         assertUintMax(countBitsToShift, this.getCountStoredBits());
         // if(this.__countBitsShifted + bitsEach * count > this.__countBitsPushed)
         // 	throw new Error(`BitDataView.shift_UIntegers(bitsEach = ${bitsEach}, countIfArray = ${countIfArray}) not enough ${bitsEach * count} bits, only ${this.getCountStoredBits()} bits stored.`);
-        let countBytes = Math.ceil(countBitsToShift / 8);
-        let uint8Array = new Uint8Array(countBytes);
-        for (let i = 0; countBitsToShift > 0; i++) {
-            let count = countBitsToShift >= 8 ? 8 : countBitsToShift;
-            let resultByteIndex = littleEndian ? countBytes - 1 - i : i;
+        var countBytes = Math.ceil(countBitsToShift / 8);
+        var uint8Array = new Uint8Array(countBytes);
+        for (var i = 0; countBitsToShift > 0; i++) {
+            var count = countBitsToShift >= 8 ? 8 : countBitsToShift;
+            var resultByteIndex = littleEndian ? countBytes - 1 - i : i;
             uint8Array[resultByteIndex] = this._shift_Uint8orLess_noAsserts(count);
             countBitsToShift -= 8;
         }
@@ -822,7 +858,7 @@ _countBitsShifted can not be < 0
         // if(littleEndian)
         // 	uint8Array.reverse();
         return uint8Array;
-    }
+    };
     //	shift_Uint16Array(countElements) {return this.shift_UIntegers(16, countElements);}
     ///shift_Uint32Array(countElements) {return this.shift_UIntegers(32, countElements);}
     //shift_BigUint64Array(countElements) {return this.shift_UnsignedBigIntegers(64, countElements);}
@@ -831,12 +867,13 @@ _countBitsShifted can not be < 0
      * param {boolean} littleEndian -
      * @return {Uint8Array} -
      */
-    pop_Uint8Array(countBitsToPop = this.getCountStoredBits() /*, littleEndian = false*/) {
+    BitDataView.prototype.pop_Uint8Array = function (countBitsToPop /*, littleEndian = false*/) {
+        if (countBitsToPop === void 0) { countBitsToPop = this.getCountStoredBits(); }
         assertUintMax(countBitsToPop, this.getCountStoredBits());
-        let countElements = Math.ceil(countBitsToPop / 8);
-        let uint8Array = new Uint8Array(countElements);
-        for (let i = 0; countBitsToPop > 0; i++) {
-            let countBitsInCurrentElement = Math.min(countBitsToPop, 8); //countBitsToPop >= 8 ? 8 : countBitsToPop;
+        var countElements = Math.ceil(countBitsToPop / 8);
+        var uint8Array = new Uint8Array(countElements);
+        for (var i = 0; countBitsToPop > 0; i++) {
+            var countBitsInCurrentElement = Math.min(countBitsToPop, 8); //countBitsToPop >= 8 ? 8 : countBitsToPop;
             //let resultByteIndex = littleEndian ? countElements - 1 - i : i;
             //uint8Array[resultByteIndex] = this._pop_Uint53orLess_noAsserts(count);
             uint8Array[i] = this._pop_Uint8orLess_noAsserts(countBitsInCurrentElement);
@@ -846,26 +883,31 @@ _countBitsShifted can not be < 0
         // if(littleEndian)
         // 	uint8Array.reverse();
         return uint8Array;
-    }
-    _setAt_DataView_noAsserts(bitAddressAt, countBitsToSet, valueDataView, littleEndian = false) {
-        let uint8Array = new Uint8Array(valueDataView.buffer);
+    };
+    BitDataView.prototype._setAt_DataView_noAsserts = function (bitAddressAt, countBitsToSet, valueDataView, littleEndian) {
+        if (littleEndian === void 0) { littleEndian = false; }
+        var uint8Array = new Uint8Array(valueDataView.buffer);
         this._setAt_Uint8Array_noAsserts(bitAddressAt, countBitsToSet, uint8Array, littleEndian);
-    }
-    _getAt_DataView_noAsserts(bitAddressAt, countBitsToGet, littleEndian = false) {
-        let uint8Array = this._getAt_Uint8Array_noAsserts(bitAddressAt, countBitsToGet, littleEndian);
+    };
+    BitDataView.prototype._getAt_DataView_noAsserts = function (bitAddressAt, countBitsToGet, littleEndian) {
+        if (littleEndian === void 0) { littleEndian = false; }
+        var uint8Array = this._getAt_Uint8Array_noAsserts(bitAddressAt, countBitsToGet, littleEndian);
         return new DataView(uint8Array.buffer);
-    }
-    _setAt_Uint8Array_noAsserts(bitIndexAt, countBitsToSet, uint8Array, littleEndian = false) {
+    };
+    BitDataView.prototype._setAt_Uint8Array_noAsserts = function (bitIndexAt, countBitsToSet, uint8Array, littleEndian) {
+        if (littleEndian === void 0) { littleEndian = false; }
         if (countBitsToSet != uint8Array.length * 8)
             throw new Error("TODO, custom Uint8Array not ready");
         this.setAt_Uint8Array_noExpandNoAsserts(bitIndexAt, uint8Array, littleEndian);
-    }
-    _getAt_toUint8Array_noAsserts(uint8Array, address, countBitsToGet = this.getCountStoredBits(), littleEndian = false) {
-        let countBytes = Math.ceil(countBitsToGet / 8);
+    };
+    BitDataView.prototype._getAt_toUint8Array_noAsserts = function (uint8Array, address, countBitsToGet, littleEndian) {
+        if (countBitsToGet === void 0) { countBitsToGet = this.getCountStoredBits(); }
+        if (littleEndian === void 0) { littleEndian = false; }
+        var countBytes = Math.ceil(countBitsToGet / 8);
         //let uint8Array = new Uint8Array(countBytes);
-        for (let i = 0; countBitsToGet > 0; i++) {
-            let count = countBitsToGet >= 8 ? 8 : countBitsToGet;
-            let resultByteIndex = littleEndian ? countBytes - 1 - i : i;
+        for (var i = 0; countBitsToGet > 0; i++) {
+            var count = countBitsToGet >= 8 ? 8 : countBitsToGet;
+            var resultByteIndex = littleEndian ? countBytes - 1 - i : i;
             uint8Array[resultByteIndex] = this._getAt_Uint8orLess_noAsserts(address, count);
             address += 8;
             countBitsToGet -= 8;
@@ -874,29 +916,30 @@ _countBitsShifted can not be < 0
         // if(littleEndian)
         // 	uint8Array.reverse();
         //return uint8Array;
-    }
-    _setAt_TempBuffer(bitIndexAt) {
+    };
+    BitDataView.prototype._setAt_TempBuffer = function (bitIndexAt) {
         this.setAt_Uint8Array_noExpandNoAsserts(bitIndexAt, tmpArr8, false);
-    }
-    _getAt_TempBuffer(bitIndexAt, countBitsToGet, littleEndian = false) {
+    };
+    BitDataView.prototype._getAt_TempBuffer = function (bitIndexAt, countBitsToGet, littleEndian) {
+        if (littleEndian === void 0) { littleEndian = false; }
         return this._getAt_toUint8Array_noAsserts(tmpArr8, bitIndexAt, countBitsToGet, littleEndian);
-    }
-    _setAt_Float32_noAsserts(bitIndexAt, valueFloat32) {
+    };
+    BitDataView.prototype._setAt_Float32_noAsserts = function (bitIndexAt, valueFloat32) {
         tempDataView.setFloat32(0, valueFloat32, this.endianness.isLittleEndian());
         this._setAt_TempBuffer(bitIndexAt);
-    }
-    _getAt_Float32_noAsserts(bitIndexAt) {
+    };
+    BitDataView.prototype._getAt_Float32_noAsserts = function (bitIndexAt) {
         this._getAt_TempBuffer(bitIndexAt, 32);
         return tempDataView.getFloat32(0, this.endianness.isLittleEndian());
-    }
-    _setAt_Float64_noAsserts(bitIndexAt, valueFloat64) {
+    };
+    BitDataView.prototype._setAt_Float64_noAsserts = function (bitIndexAt, valueFloat64) {
         tempDataView.setFloat64(0, valueFloat64, this.endianness.isLittleEndian());
         this._setAt_TempBuffer(bitIndexAt);
-    }
-    _getAt_Float64_noAsserts(bitIndexAt) {
+    };
+    BitDataView.prototype._getAt_Float64_noAsserts = function (bitIndexAt) {
         this._getAt_TempBuffer(bitIndexAt, 64);
         return tempDataView.getFloat64(0, this.endianness.isLittleEndian());
-    }
+    };
     /********** PROTECTED SECTION. Data type: Byte. **********/
     /**
      * SET: write unsigned integer by virtual index until end of bitDataView and don't change size.
@@ -905,9 +948,9 @@ _countBitsShifted can not be < 0
      * @param {number} valueByte - Range: 0 <= value <= 0xFF (2 ^ 8 - 1). Not asserted.
      * @access protected
      */
-    _setUntil_Uint8orLess_noAsserts(bitIndexUntil, countBitsToSet, valueByte) {
+    BitDataView.prototype._setUntil_Uint8orLess_noAsserts = function (bitIndexUntil, countBitsToSet, valueByte) {
         return this._setAt_Uint8orLess_noAsserts(this.getCountStoredBits() - countBitsToSet - bitIndexUntil, countBitsToSet, valueByte);
-    }
+    };
     /**
      * GET: read unsigned integer by virtual index until end of bitDataView and don't change size.
      * @param {number} bitIndexUntil - Integer bit index until end. Not asserted.
@@ -915,51 +958,51 @@ _countBitsShifted can not be < 0
      * @return {number} - Range: 0 <= value <= 0xFF (2 ^ 8 - 1).
      * @access protected
      */
-    _getUntil_Uint8orLess_noAsserts(bitIndexUntil, countBitsToGet) {
+    BitDataView.prototype._getUntil_Uint8orLess_noAsserts = function (bitIndexUntil, countBitsToGet) {
         return this._getAt_Uint8orLess_noAsserts(this.getCountStoredBits() - countBitsToGet - bitIndexUntil, countBitsToGet);
-    }
+    };
     /**
      * PUSH: write (unsigned integer) after end of bitDataView and increase size.
      * @param {number} countBitsToPush - Count bits from 0 to 8 of value to push. Not asserted.
      * @param {number} valueByte - Range: 0 <= value <= 0xFF (2 ^ 8 - 1). Not asserted.
      * @access protected
      */
-    _push_Uint8orLess_noAssertsNoExpand(countBitsToPush, valueByte) {
+    BitDataView.prototype._push_Uint8orLess_noAssertsNoExpand = function (countBitsToPush, valueByte) {
         this.__countBitsPushed += countBitsToPush;
         this._setUntil_Uint8orLess_noAsserts(0, countBitsToPush, valueByte);
-    }
+    };
     /**
      * UNSHIFT: write (unsigned integer) before begin of bitDataView and increase size.
      * @param {number} countBitsToUnshift - Count bits from 0 to 8 of value to unshift. Not asserted.
      * @param {number} valueByte - Range: 0 <= value <= 0xFF (2 ^ 8 - 1). Not asserted.
      * @access protected
      */
-    _unshift_Uint8orLess_noAssertsNoExpand(countBitsToUnshift, valueByte) {
+    BitDataView.prototype._unshift_Uint8orLess_noAssertsNoExpand = function (countBitsToUnshift, valueByte) {
         this.__countBitsShifted -= countBitsToUnshift;
         this._setAt_Uint8orLess_noAsserts(0, countBitsToUnshift, valueByte);
-    }
+    };
     /**
      * SHIFT: read (unsigned integer) after begin of bitDataView and reduce size.
      * @param {number} countBitsToShift - Count bits from 0 to 8 of value to shift. Not asserted.
      * @return {number} - Range: 0 <= value <= 0xFF (2 ^ 8 - 1).
      * @access protected
      */
-    _shift_Uint8orLess_noAsserts(countBitsToShift) {
-        let result = this._getAt_Uint8orLess_noAsserts(0, countBitsToShift);
+    BitDataView.prototype._shift_Uint8orLess_noAsserts = function (countBitsToShift) {
+        var result = this._getAt_Uint8orLess_noAsserts(0, countBitsToShift);
         this.__countBitsShifted += countBitsToShift;
         return result;
-    }
+    };
     /**
      * POP: read (unsigned integer) before end of bitDataView and reduce size.
      * @param {number} countBitsToPop - Count bits from 0 to 8 of value to pop. Not asserted.
      * @return {number} - Range: 0 <= value <= 0xFF (2 ^ 8 - 1).
      * @access protected
      */
-    _pop_Uint8orLess_noAsserts(countBitsToPop) {
-        let result = this._getUntil_Uint8orLess_noAsserts(0, countBitsToPop);
+    BitDataView.prototype._pop_Uint8orLess_noAsserts = function (countBitsToPop) {
+        var result = this._getUntil_Uint8orLess_noAsserts(0, countBitsToPop);
         this.__countBitsPushed -= countBitsToPop;
         return result;
-    }
+    };
     /********** PROTECTED SECTION. Data type: Uint. **********/
     /**
      * SET: write unsigned integer by virtual index until end of bitDataView and don't change size.
@@ -968,9 +1011,9 @@ _countBitsShifted can not be < 0
      * @param {number} valueUint - Range: 0 <= value <= 0x1FFFFFFFFFFFFF (2 ^ 53 - 1). Not asserted.
      * @access protected
      */
-    _setUntil_Uint53orLess_noAsserts(bitIndexUntil, countBitsToSet, valueUint) {
+    BitDataView.prototype._setUntil_Uint53orLess_noAsserts = function (bitIndexUntil, countBitsToSet, valueUint) {
         return this._setAt_Uint53orLess_noAsserts(this.getCountStoredBits() - countBitsToSet - bitIndexUntil, countBitsToSet, valueUint);
-    }
+    };
     /**
      * GET: read unsigned integer by virtual index until end of bitDataView and don't change size.
      * @param {number} bitIndexUntil - Integer bit index until end. Not asserted.
@@ -978,51 +1021,51 @@ _countBitsShifted can not be < 0
      * @return {number} - Range: 0 <= value <= 0x1FFFFFFFFFFFFF (2 ^ 53 - 1).
      * @access protected
      */
-    _getUntil_Uint53orLess_noAsserts(bitIndexUntil, countBitsToGet) {
+    BitDataView.prototype._getUntil_Uint53orLess_noAsserts = function (bitIndexUntil, countBitsToGet) {
         return this._getAt_Uint53orLess_noAsserts(this.getCountStoredBits() - countBitsToGet - bitIndexUntil, countBitsToGet);
-    }
+    };
     /**
      * PUSH: write (unsigned integer) after end of bitDataView and increase size.
      * @param {number} countBitsToPush - Count bits from 0 to 53 of value to push. Not asserted.
      * @param {number} valueUint - Range: 0 <= value <= 0x1FFFFFFFFFFFFF (2 ^ 53 - 1). Not asserted.
      * @access protected
      */
-    _push_Uint53orLess_noAssertsNoExpand(countBitsToPush, valueUint) {
+    BitDataView.prototype._push_Uint53orLess_noAssertsNoExpand = function (countBitsToPush, valueUint) {
         this.__countBitsPushed += countBitsToPush;
         this._setUntil_Uint53orLess_noAsserts(0, countBitsToPush, valueUint);
-    }
+    };
     /**
      * UNSHIFT: write (unsigned integer) before begin of bitDataView and increase size.
      * @param {number} countBitsToUnshift - Count bits from 0 to 53 of value to unshift. Not asserted.
      * @param {number} valueUint - Range: 0 <= value <= 0x1FFFFFFFFFFFFF (2 ^ 53 - 1). Not asserted.
      * @access protected
      */
-    _unshift_Uint53orLess_noAssertsNoExpand(countBitsToUnshift, valueUint) {
+    BitDataView.prototype._unshift_Uint53orLess_noAssertsNoExpand = function (countBitsToUnshift, valueUint) {
         this.__countBitsShifted -= countBitsToUnshift;
         this._setAt_Uint53orLess_noAsserts(0, countBitsToUnshift, valueUint);
-    }
+    };
     /**
      * SHIFT: read (unsigned integer) after begin of bitDataView and reduce size.
      * @param {number} countBitsToShift - Count bits from 0 to 53 of value to shift. Not asserted.
      * @return {number} - Range: 0 <= value <= 0x1FFFFFFFFFFFFF (2 ^ 53 - 1).
      * @access protected
      */
-    _shift_Uint53orLess_noAsserts(countBitsToShift) {
-        let result = this._getAt_Uint53orLess_noAsserts(0, countBitsToShift);
+    BitDataView.prototype._shift_Uint53orLess_noAsserts = function (countBitsToShift) {
+        var result = this._getAt_Uint53orLess_noAsserts(0, countBitsToShift);
         this.__countBitsShifted += countBitsToShift;
         return result;
-    }
+    };
     /**
      * POP: read (unsigned integer) before end of bitDataView and reduce size.
      * @param {number} countBitsToPop - Count bits from 0 to 53 of value to pop. Not asserted.
      * @return {number} - Range: 0 <= value <= 0x1FFFFFFFFFFFFF (2 ^ 53 - 1).
      * @access protected
      */
-    _pop_Uint53orLess_noAsserts(countBitsToPop) {
-        let result = this._getUntil_Uint53orLess_noAsserts(0, countBitsToPop);
+    BitDataView.prototype._pop_Uint53orLess_noAsserts = function (countBitsToPop) {
+        var result = this._getUntil_Uint53orLess_noAsserts(0, countBitsToPop);
         this.__countBitsPushed -= countBitsToPop;
         return result;
-    }
+    };
     /********** PROTECTED SECTION. Data type: Int. **********/
     /**
      * SET: write signed integer by virtual index until end of bitDataView and don't change size.
@@ -1031,9 +1074,9 @@ _countBitsShifted can not be < 0
      * @param {number} valueInt - Range: -0x10000000000000 (2^52) <= value <= 0xFFFFFFFFFFFFF (2^52-1). Not asserted.
      * @access protected
      */
-    _setUntil_Int53orLess_noAsserts(bitIndexUntil, countBitsToSet, valueInt) {
+    BitDataView.prototype._setUntil_Int53orLess_noAsserts = function (bitIndexUntil, countBitsToSet, valueInt) {
         return this._setAt_Int53orLess_noAsserts(this.getCountStoredBits() - countBitsToSet - bitIndexUntil, countBitsToSet, valueInt);
-    }
+    };
     /**
      * GET: read signed integer by virtual index until end of bitDataView and don't change size.
      * @param {number} bitIndexUntil - Integer bit index until end. Not asserted.
@@ -1041,51 +1084,51 @@ _countBitsShifted can not be < 0
      * @return {number} - Range: -0x10000000000000 (2^52) <= value <= 0xFFFFFFFFFFFFF (2^52-1).
      * @access protected
      */
-    _getUntil_Int53orLess_noAsserts(bitIndexUntil, countBitsToGet) {
+    BitDataView.prototype._getUntil_Int53orLess_noAsserts = function (bitIndexUntil, countBitsToGet) {
         return this._getAt_Int53orLess_noAsserts(this.getCountStoredBits() - countBitsToGet - bitIndexUntil, countBitsToGet);
-    }
+    };
     /**
      * PUSH: write (signed integer) after end of bitDataView and increase size.
      * @param {number} countBitsToPush - Count bits from 1 to 53 of value to push. Not asserted.
      * @param {number} valueInt - Range: -0x10000000000000 (2^52) <= value <= 0xFFFFFFFFFFFFF (2^52-1). Not asserted.
      * @access protected
      */
-    _push_Int53orLess_noAssertsNoExpand(countBitsToPush, valueInt) {
+    BitDataView.prototype._push_Int53orLess_noAssertsNoExpand = function (countBitsToPush, valueInt) {
         this.__countBitsPushed += countBitsToPush;
         this._setUntil_Int53orLess_noAsserts(0, countBitsToPush, valueInt);
-    }
+    };
     /**
      * UNSHIFT: write (signed integer) before begin of bitDataView and increase size.
      * @param {number} countBitsToUnshift - Count bits from 1 to 53 of value to unshift. Not asserted.
      * @param {number} valueInt - Range: -0x10000000000000 (2^52) <= value <= 0xFFFFFFFFFFFFF (2^52-1). Not asserted.
      * @access protected
      */
-    _unshift_Int53orLess_noAssertsNoExpand(countBitsToUnshift, valueInt) {
+    BitDataView.prototype._unshift_Int53orLess_noAssertsNoExpand = function (countBitsToUnshift, valueInt) {
         this.__countBitsShifted -= countBitsToUnshift;
         this._setAt_Int53orLess_noAsserts(0, countBitsToUnshift, valueInt);
-    }
+    };
     /**
      * SHIFT: read (signed integer) after begin of bitDataView and reduce size.
      * @param {number} countBitsToShift - Count bits from 1 to 53 of value to shift. Not asserted.
      * @return {number} - Range: -0x10000000000000 (2^52) <= value <= 0xFFFFFFFFFFFFF (2^52-1).
      * @access protected
      */
-    _shift_Int53orLess_noAsserts(countBitsToShift) {
-        let result = this._getAt_Int53orLess_noAsserts(0, countBitsToShift);
+    BitDataView.prototype._shift_Int53orLess_noAsserts = function (countBitsToShift) {
+        var result = this._getAt_Int53orLess_noAsserts(0, countBitsToShift);
         this.__countBitsShifted += countBitsToShift;
         return result;
-    }
+    };
     /**
      * POP: read (signed integer) before end of bitDataView and reduce size.
      * @param {number} countBitsToPop - Count bits from 1 to 53 of value to pop. Not asserted.
      * @return {number} - Range: -0x10000000000000 (2^52) <= value <= 0xFFFFFFFFFFFFF (2^52-1).
      * @access protected
      */
-    _pop_Int53orLess_noAsserts(countBitsToPop) {
-        let result = this._getUntil_Int53orLess_noAsserts(0, countBitsToPop);
+    BitDataView.prototype._pop_Int53orLess_noAsserts = function (countBitsToPop) {
+        var result = this._getUntil_Int53orLess_noAsserts(0, countBitsToPop);
         this.__countBitsPushed -= countBitsToPop;
         return result;
-    }
+    };
     /********** PROTECTED SECTION. Data type: BigUint. **********/
     /**
      * SET: write bigint by virtual index until end of bitDataView and don't change size.
@@ -1094,9 +1137,9 @@ _countBitsShifted can not be < 0
      * @param {bigint} valueBigUint - Range: 0n <= value <= 0xFFFFFFFFFFFFFFFFn (2 ^ 64 - 1). Not asserted.
      * @access protected
      */
-    _setUntil_BigUint64orLess_noAsserts(bitIndexUntil, countBitsToSet, valueBigUint) {
+    BitDataView.prototype._setUntil_BigUint64orLess_noAsserts = function (bitIndexUntil, countBitsToSet, valueBigUint) {
         return this._setAt_BigUint64orLess_noAsserts(this.getCountStoredBits() - countBitsToSet - bitIndexUntil, countBitsToSet, valueBigUint);
-    }
+    };
     /**
      * GET: read bigint by virtual index until end of bitDataView and don't change size.
      * @param {number} bitIndexUntil - Integer bit index until end. Not asserted.
@@ -1104,51 +1147,51 @@ _countBitsShifted can not be < 0
      * @return {bigint} - Range: 0n <= value <= 0xFFFFFFFFFFFFFFFFn (2 ^ 64 - 1).
      * @access protected
      */
-    _getUntil_BigUint64orLess_noAsserts(bitIndexUntil, countBitsToGet) {
+    BitDataView.prototype._getUntil_BigUint64orLess_noAsserts = function (bitIndexUntil, countBitsToGet) {
         return this._getAt_BigUint64orLess_noAsserts(this.getCountStoredBits() - countBitsToGet - bitIndexUntil, countBitsToGet);
-    }
+    };
     /**
      * PUSH: write (bigint) after end of bitDataView and increase size.
      * @param {number} countBitsToPush - Count bits from 0 to 64 of value to push. Not asserted.
      * @param {bigint} valueBigUint - Range: 0n <= value <= 0xFFFFFFFFFFFFFFFFn (2 ^ 64 - 1). Not asserted.
      * @access protected
      */
-    _push_BigUint64orLess_noAssertsNoExpand(countBitsToPush, valueBigUint) {
+    BitDataView.prototype._push_BigUint64orLess_noAssertsNoExpand = function (countBitsToPush, valueBigUint) {
         this.__countBitsPushed += countBitsToPush;
         this._setUntil_BigUint64orLess_noAsserts(0, countBitsToPush, valueBigUint);
-    }
+    };
     /**
      * UNSHIFT: write (bigint) before begin of bitDataView and increase size.
      * @param {number} countBitsToUnshift - Count bits from 0 to 64 of value to unshift. Not asserted.
      * @param {bigint} valueBigUint - Range: 0n <= value <= 0xFFFFFFFFFFFFFFFFn (2 ^ 64 - 1). Not asserted.
      * @access protected
      */
-    _unshift_BigUint64orLess_noAssertsNoExpand(countBitsToUnshift, valueBigUint) {
+    BitDataView.prototype._unshift_BigUint64orLess_noAssertsNoExpand = function (countBitsToUnshift, valueBigUint) {
         this.__countBitsShifted -= countBitsToUnshift;
         this._setAt_BigUint64orLess_noAsserts(0, countBitsToUnshift, valueBigUint);
-    }
+    };
     /**
      * SHIFT: read (bigint) after begin of bitDataView and reduce size.
      * @param {number} countBitsToShift - Count bits from 0 to 64 of value to shift. Not asserted.
      * @return {bigint} - Range: 0n <= value <= 0xFFFFFFFFFFFFFFFFn (2 ^ 64 - 1).
      * @access protected
      */
-    _shift_BigUint64orLess_noAsserts(countBitsToShift) {
-        let result = this._getAt_BigUint64orLess_noAsserts(0, countBitsToShift);
+    BitDataView.prototype._shift_BigUint64orLess_noAsserts = function (countBitsToShift) {
+        var result = this._getAt_BigUint64orLess_noAsserts(0, countBitsToShift);
         this.__countBitsShifted += countBitsToShift;
         return result;
-    }
+    };
     /**
      * POP: read (bigint) before end of bitDataView and reduce size.
      * @param {number} countBitsToPop - Count bits from 0 to 64 of value to pop. Not asserted.
      * @return {bigint} - Range: 0n <= value <= 0xFFFFFFFFFFFFFFFFn (2 ^ 64 - 1).
      * @access protected
      */
-    _pop_BigUint64orLess_noAsserts(countBitsToPop) {
-        let result = this._getUntil_BigUint64orLess_noAsserts(0, countBitsToPop);
+    BitDataView.prototype._pop_BigUint64orLess_noAsserts = function (countBitsToPop) {
+        var result = this._getUntil_BigUint64orLess_noAsserts(0, countBitsToPop);
         this.__countBitsPushed -= countBitsToPop;
         return result;
-    }
+    };
     /********** PROTECTED SECTION. Data type: BigInt. **********/
     /**
      * SET: write BigInt by virtual index until end of bitDataView and don't change size.
@@ -1157,9 +1200,9 @@ _countBitsShifted can not be < 0
      * @param {bigint} valueBigInt - Range: -0x8000000000000000n (2^63) <= value <= 0x7FFFFFFFFFFFFFFFn (2^63-1). Not asserted.
      * @access protected
      */
-    _setUntil_BigInt64orLess_noAsserts(bitIndexUntil, countBitsToSet, valueBigInt) {
+    BitDataView.prototype._setUntil_BigInt64orLess_noAsserts = function (bitIndexUntil, countBitsToSet, valueBigInt) {
         return this._setAt_BigInt64orLess_noAsserts(this.getCountStoredBits() - countBitsToSet - bitIndexUntil, countBitsToSet, valueBigInt);
-    }
+    };
     /**
      * GET: read BigInt by virtual index until end of bitDataView and don't change size.
      * @param {number} bitIndexUntil - Integer bit index until end. Not asserted.
@@ -1167,51 +1210,51 @@ _countBitsShifted can not be < 0
      * @return {bigint} - Range: -0x8000000000000000n (2^63) <= value <= 0x7FFFFFFFFFFFFFFFn (2^63-1).
      * @access protected
      */
-    _getUntil_BigInt64orLess_noAsserts(bitIndexUntil, countBitsToGet) {
+    BitDataView.prototype._getUntil_BigInt64orLess_noAsserts = function (bitIndexUntil, countBitsToGet) {
         return this._getAt_BigInt64orLess_noAsserts(this.getCountStoredBits() - countBitsToGet - bitIndexUntil, countBitsToGet);
-    }
+    };
     /**
      * PUSH: write (BigInt) after end of bitDataView and increase size.
      * @param {number} countBitsToPush - Count bits from 1 to 64 of value to push. Not asserted.
      * @param {bigint} valueBigInt - Range: -0x8000000000000000n (2^63) <= value <= 0x7FFFFFFFFFFFFFFFn (2^63-1). Not asserted.
      * @access protected
      */
-    _push_BigInt64orLess_noAssertsNoExpand(countBitsToPush, valueBigInt) {
+    BitDataView.prototype._push_BigInt64orLess_noAssertsNoExpand = function (countBitsToPush, valueBigInt) {
         this.__countBitsPushed += countBitsToPush;
         this._setUntil_BigInt64orLess_noAsserts(0, countBitsToPush, valueBigInt);
-    }
+    };
     /**
      * UNSHIFT: write (BigInt) before begin of bitDataView and increase size.
      * @param {number} countBitsToUnshift - Count bits from 1 to 64 of value to unshift. Not asserted.
      * @param {bigint} valueBigInt - Range: -0x8000000000000000n (2^63) <= value <= 0x7FFFFFFFFFFFFFFFn (2^63-1). Not asserted.
      * @access protected
      */
-    _unshift_BigInt64orLess_noAssertsNoExpand(countBitsToUnshift, valueBigInt) {
+    BitDataView.prototype._unshift_BigInt64orLess_noAssertsNoExpand = function (countBitsToUnshift, valueBigInt) {
         this.__countBitsShifted -= countBitsToUnshift;
         this._setAt_BigInt64orLess_noAsserts(0, countBitsToUnshift, valueBigInt);
-    }
+    };
     /**
      * SHIFT: read (BigInt) after begin of bitDataView and reduce size.
      * @param {number} countBitsToShift - Count bits from 1 to 64 of value to shift. Not asserted.
      * @return {bigint} - Range: -0x8000000000000000n (2^63) <= value <= 0x7FFFFFFFFFFFFFFFn (2^63-1).
      * @access protected
      */
-    _shift_BigInt64orLess_noAsserts(countBitsToShift) {
-        let result = this._getAt_BigInt64orLess_noAsserts(0, countBitsToShift);
+    BitDataView.prototype._shift_BigInt64orLess_noAsserts = function (countBitsToShift) {
+        var result = this._getAt_BigInt64orLess_noAsserts(0, countBitsToShift);
         this.__countBitsShifted += countBitsToShift;
         return result;
-    }
+    };
     /**
      * POP: read (BigInt) before end of bitDataView and reduce size.
      * @param {number} countBitsToPop - Count bits from 1 to 64 of value to pop. Not asserted.
      * @return {bigint} - Range: -0x8000000000000000n (2^63) <= value <= 0x7FFFFFFFFFFFFFFFn (2^63-1).
      * @access protected
      */
-    _pop_BigInt64orLess_noAsserts(countBitsToPop) {
-        let result = this._getUntil_BigInt64orLess_noAsserts(0, countBitsToPop);
+    BitDataView.prototype._pop_BigInt64orLess_noAsserts = function (countBitsToPop) {
+        var result = this._getUntil_BigInt64orLess_noAsserts(0, countBitsToPop);
         this.__countBitsPushed -= countBitsToPop;
         return result;
-    }
+    };
     /********** PROTECTED SECTION. Data type: Float32. **********/
     /**
      * SET: write floating number 32 bits by virtual index until end of bitDataView and don't change size.
@@ -1219,56 +1262,56 @@ _countBitsShifted can not be < 0
      * @param {number} valueFloat32 - Range: same DataView.getFloat32. Not asserted.
      * @access protected
      */
-    _setUntil_Float32_noAsserts(bitIndexUntil, valueFloat32) {
+    BitDataView.prototype._setUntil_Float32_noAsserts = function (bitIndexUntil, valueFloat32) {
         return this._setAt_Float32_noAsserts(this.getCountStoredBits() - 32 - bitIndexUntil, valueFloat32);
-    }
+    };
     /**
      * GET: read floating number 32 bits by virtual index until end of bitDataView and don't change size.
      * @param {number} bitIndexUntil - Integer bit index until end. Not asserted.
      * @return {number} - Range: same DataView.getFloat32.
      * @access protected
      */
-    _getUntil_Float32_noAsserts(bitIndexUntil) {
+    BitDataView.prototype._getUntil_Float32_noAsserts = function (bitIndexUntil) {
         return this._getAt_Float32_noAsserts(this.getCountStoredBits() - 32 - bitIndexUntil);
-    }
+    };
     /**
      * PUSH: write (floating number 32 bits) after end of bitDataView and increase size.
      * @param {number} valueFloat32 - Range: same DataView.getFloat32. Not asserted.
      * @access protected
      */
-    _push_Float32_noAssertsNoExpand(valueFloat32) {
+    BitDataView.prototype._push_Float32_noAssertsNoExpand = function (valueFloat32) {
         this.__countBitsPushed += 32;
         this._setUntil_Float32_noAsserts(0, valueFloat32);
-    }
+    };
     /**
      * UNSHIFT: write (floating number 32 bits) before begin of bitDataView and increase size.
      * @param {number} valueFloat32 - Range: same DataView.getFloat32. Not asserted.
      * @access protected
      */
-    _unshift_Float32_noAssertsNoExpand(valueFloat32) {
+    BitDataView.prototype._unshift_Float32_noAssertsNoExpand = function (valueFloat32) {
         this.__countBitsShifted -= 32;
         this._setAt_Float32_noAsserts(0, valueFloat32);
-    }
+    };
     /**
      * SHIFT: read (floating number 32 bits) after begin of bitDataView and reduce size.
      * @return {number} - Range: same DataView.getFloat32.
      * @access protected
      */
-    _shift_Float32_noAsserts() {
-        let result = this._getAt_Float32_noAsserts(0);
+    BitDataView.prototype._shift_Float32_noAsserts = function () {
+        var result = this._getAt_Float32_noAsserts(0);
         this.__countBitsShifted += 32;
         return result;
-    }
+    };
     /**
      * POP: read (floating number 32 bits) before end of bitDataView and reduce size.
      * @return {number} - Range: same DataView.getFloat32.
      * @access protected
      */
-    _pop_Float32_noAsserts() {
-        let result = this._getUntil_Float32_noAsserts(0);
+    BitDataView.prototype._pop_Float32_noAsserts = function () {
+        var result = this._getUntil_Float32_noAsserts(0);
         this.__countBitsPushed -= 32;
         return result;
-    }
+    };
     /********** PROTECTED SECTION. Data type: Float64. **********/
     /**
      * SET: write floating number 64 bits by virtual index until end of bitDataView and don't change size.
@@ -1276,56 +1319,56 @@ _countBitsShifted can not be < 0
      * @param {number} valueFloat64 - Range: any number. Not asserted.
      * @access protected
      */
-    _setUntil_Float64_noAsserts(bitIndexUntil, valueFloat64) {
+    BitDataView.prototype._setUntil_Float64_noAsserts = function (bitIndexUntil, valueFloat64) {
         return this._setAt_Float64_noAsserts(this.getCountStoredBits() - 64 - bitIndexUntil, valueFloat64);
-    }
+    };
     /**
      * GET: read floating number 64 bits by virtual index until end of bitDataView and don't change size.
      * @param {number} bitIndexUntil - Integer bit index until end. Not asserted.
      * @return {number} - Range: any number.
      * @access protected
      */
-    _getUntil_Float64_noAsserts(bitIndexUntil) {
+    BitDataView.prototype._getUntil_Float64_noAsserts = function (bitIndexUntil) {
         return this._getAt_Float64_noAsserts(this.getCountStoredBits() - 64 - bitIndexUntil);
-    }
+    };
     /**
      * PUSH: write (floating number 64 bits) after end of bitDataView and increase size.
      * @param {number} valueFloat64 - Range: any number. Not asserted.
      * @access protected
      */
-    _push_Float64_noAssertsNoExpand(valueFloat64) {
+    BitDataView.prototype._push_Float64_noAssertsNoExpand = function (valueFloat64) {
         this.__countBitsPushed += 64;
         this._setUntil_Float64_noAsserts(0, valueFloat64);
-    }
+    };
     /**
      * UNSHIFT: write (floating number 64 bits) before begin of bitDataView and increase size.
      * @param {number} valueFloat64 - Range: any number. Not asserted.
      * @access protected
      */
-    _unshift_Float64_noAssertsNoExpand(valueFloat64) {
+    BitDataView.prototype._unshift_Float64_noAssertsNoExpand = function (valueFloat64) {
         this.__countBitsShifted -= 64;
         this._setAt_Float64_noAsserts(0, valueFloat64);
-    }
+    };
     /**
      * SHIFT: read (floating number 64 bits) after begin of bitDataView and reduce size.
      * @return {number} - Range: any number.
      * @access protected
      */
-    _shift_Float64_noAsserts() {
-        let result = this._getAt_Float64_noAsserts(0);
+    BitDataView.prototype._shift_Float64_noAsserts = function () {
+        var result = this._getAt_Float64_noAsserts(0);
         this.__countBitsShifted += 64;
         return result;
-    }
+    };
     /**
      * POP: read (floating number 64 bits) before end of bitDataView and reduce size.
      * @return {number} - Range: any number.
      * @access protected
      */
-    _pop_Float64_noAsserts() {
-        let result = this._getUntil_Float64_noAsserts(0);
+    BitDataView.prototype._pop_Float64_noAsserts = function () {
+        var result = this._getUntil_Float64_noAsserts(0);
         this.__countBitsPushed -= 64;
         return result;
-    }
+    };
     /********** PROTECTED SECTION. Data type: DataView. **********/
     /**
      * SET: write instanceOf DataView by virtual index until end of bitDataView and don't change size.
@@ -1335,9 +1378,10 @@ _countBitsShifted can not be < 0
      * @param {boolean} littleEndian - order of bytes, normal or reverse.
      * @access protected
      */
-    _setUntil_DataView_noAsserts(bitIndexUntil, countBitsToSet, valueDataView, littleEndian = false) {
+    BitDataView.prototype._setUntil_DataView_noAsserts = function (bitIndexUntil, countBitsToSet, valueDataView, littleEndian) {
+        if (littleEndian === void 0) { littleEndian = false; }
         return this._setAt_DataView_noAsserts(this.getCountStoredBits() - countBitsToSet - bitIndexUntil, countBitsToSet, valueDataView, littleEndian);
-    }
+    };
     /**
      * GET: read instanceOf DataView by virtual index until end of bitDataView and don't change size.
      * @param {number} bitIndexUntil - Integer bit index until end. Not asserted.
@@ -1346,9 +1390,10 @@ _countBitsShifted can not be < 0
      * @return {DataView} - Range: any number.
      * @access protected
      */
-    _getUntil_DataView_noAsserts(bitIndexUntil, countBitsToGet, littleEndian = false) {
+    BitDataView.prototype._getUntil_DataView_noAsserts = function (bitIndexUntil, countBitsToGet, littleEndian) {
+        if (littleEndian === void 0) { littleEndian = false; }
         return this._getAt_DataView_noAsserts(this.getCountStoredBits() - countBitsToGet - bitIndexUntil, countBitsToGet, littleEndian);
-    }
+    };
     /**
      * PUSH: write (instanceOf DataView) after end of bitDataView and increase size.
      * @param {number} countBitsToPush - Count bits from 0 to 0xFFFFFFFE of value to push. Not asserted.
@@ -1356,10 +1401,11 @@ _countBitsShifted can not be < 0
      * @param {boolean} littleEndian - order of bytes, normal or reverse.
      * @access protected
      */
-    _push_DataView_noAssertsNoExpand(countBitsToPush, valueDataView, littleEndian = false) {
+    BitDataView.prototype._push_DataView_noAssertsNoExpand = function (countBitsToPush, valueDataView, littleEndian) {
+        if (littleEndian === void 0) { littleEndian = false; }
         this.__countBitsPushed += countBitsToPush;
         this._setUntil_DataView_noAsserts(0, countBitsToPush, valueDataView, littleEndian);
-    }
+    };
     /**
      * UNSHIFT: write (instanceOf DataView) before begin of bitDataView and increase size.
      * @param {number} countBitsToUnshift - Count bits from 0 to 0xFFFFFFFE of value to unshift. Not asserted.
@@ -1367,10 +1413,11 @@ _countBitsShifted can not be < 0
      * @param {boolean} littleEndian - order of bytes, normal or reverse.
      * @access protected
      */
-    _unshift_DataView_noAssertsNoExpand(countBitsToUnshift, valueDataView, littleEndian = false) {
+    BitDataView.prototype._unshift_DataView_noAssertsNoExpand = function (countBitsToUnshift, valueDataView, littleEndian) {
+        if (littleEndian === void 0) { littleEndian = false; }
         this.__countBitsShifted -= countBitsToUnshift;
         this._setAt_DataView_noAsserts(0, countBitsToUnshift, valueDataView, littleEndian);
-    }
+    };
     /**
      * SHIFT: read (instanceOf DataView) after begin of bitDataView and reduce size.
      * @param {number} countBitsToShift - Count bits from 0 to 0xFFFFFFFE of value to shift. Not asserted.
@@ -1378,11 +1425,12 @@ _countBitsShifted can not be < 0
      * @return {DataView} - Range: any number.
      * @access protected
      */
-    _shift_DataView_noAsserts(countBitsToShift, littleEndian = false) {
-        let result = this._getAt_DataView_noAsserts(0, countBitsToShift, littleEndian);
+    BitDataView.prototype._shift_DataView_noAsserts = function (countBitsToShift, littleEndian) {
+        if (littleEndian === void 0) { littleEndian = false; }
+        var result = this._getAt_DataView_noAsserts(0, countBitsToShift, littleEndian);
         this.__countBitsShifted += countBitsToShift;
         return result;
-    }
+    };
     /**
      * POP: read (instanceOf DataView) before end of bitDataView and reduce size.
      * @param {number} countBitsToPop - Count bits from 0 to 0xFFFFFFFE of value to pop. Not asserted.
@@ -1390,11 +1438,12 @@ _countBitsShifted can not be < 0
      * @return {DataView} - Range: any number.
      * @access protected
      */
-    _pop_DataView_noAsserts(countBitsToPop, littleEndian = false) {
-        let result = this._getUntil_DataView_noAsserts(0, countBitsToPop, littleEndian);
+    BitDataView.prototype._pop_DataView_noAsserts = function (countBitsToPop, littleEndian) {
+        if (littleEndian === void 0) { littleEndian = false; }
+        var result = this._getUntil_DataView_noAsserts(0, countBitsToPop, littleEndian);
         this.__countBitsPushed -= countBitsToPop;
         return result;
-    }
+    };
     /********** PUBLIC SECTION. Data type: Byte. **********/
     /**
      * SET: write unsigned integer by virtual index until end of bitDataView and don't change size.
@@ -1402,82 +1451,82 @@ _countBitsShifted can not be < 0
      * @param {number} countBitsToSet - Count bits from 0 to 8 of value to set.
      * @param {number} valueByte - Range: 0 <= value <= 0xFF (2 ^ 8 - 1).
      */
-    setAtByte(bitIndexAt, countBitsToSet, valueByte) {
+    BitDataView.prototype.setAtByte = function (bitIndexAt, countBitsToSet, valueByte) {
         countBitsToSet = assertIntMinMax(countBitsToSet, 0, 8);
         bitIndexAt = assertIntMinMax(bitIndexAt, 0, this.getCountStoredBits() - countBitsToSet);
         this._setAt_Uint8orLess_noAsserts(bitIndexAt, countBitsToSet, valueByte);
-    }
+    };
     /**
      * SET: write unsigned integer by virtual index until end of bitDataView and don't change size.
      * @param {number} bitIndexUntil - Integer bit index until end.
      * @param {number} countBitsToSet - Count bits from 0 to 8 of value to set.
      * @param {number} valueByte - Range: 0 <= value <= 0xFF (2 ^ 8 - 1).
      */
-    setUntilByte(bitIndexUntil, countBitsToSet, valueByte) {
+    BitDataView.prototype.setUntilByte = function (bitIndexUntil, countBitsToSet, valueByte) {
         countBitsToSet = assertIntMinMax(countBitsToSet, 0, 8);
         bitIndexUntil = assertIntMinMax(bitIndexUntil, 0, this.getCountStoredBits() - countBitsToSet);
         this._setUntil_Uint8orLess_noAsserts(bitIndexUntil, countBitsToSet, valueByte);
-    }
+    };
     /**
      * GET: read unsigned integer by virtual index at begin of bitDataView and don't change size.
      * @param {number} bitIndexAt - Integer bit index until end.
      * @param {number} countBitsToGet - Count bits from 0 to 8 of value to get.
      * @return {number} - Range: 0 <= value <= 0xFF (2 ^ 8 - 1).
      */
-    getAtByte(bitIndexAt, countBitsToGet) {
+    BitDataView.prototype.getAtByte = function (bitIndexAt, countBitsToGet) {
         countBitsToGet = assertIntMinMax(countBitsToGet, 0, 8);
         bitIndexAt = assertIntMinMax(bitIndexAt, 0, this.getCountStoredBits() - countBitsToGet);
         return this._getAt_Uint8orLess_noAsserts(bitIndexAt, countBitsToGet);
-    }
+    };
     /**
      * GET: read unsigned integer by virtual index until end of bitDataView and don't change size.
      * @param {number} bitIndexUntil - Integer bit index until end.
      * @param {number} countBitsToGet - Count bits from 0 to 8 of value to get.
      * @return {number} - Range: 0 <= value <= 0xFF (2 ^ 8 - 1).
      */
-    getUntilByte(bitIndexUntil, countBitsToGet) {
+    BitDataView.prototype.getUntilByte = function (bitIndexUntil, countBitsToGet) {
         countBitsToGet = assertIntMinMax(countBitsToGet, 0, 8);
         bitIndexUntil = assertIntMinMax(bitIndexUntil, 0, this.getCountStoredBits() - countBitsToGet);
         return this._getUntil_Uint8orLess_noAsserts(bitIndexUntil, countBitsToGet);
-    }
+    };
     /**
      * PUSH: write (unsigned integer) after end of bitDataView and increase size.
      * @param {number} countBitsToPush - Count bits from 0 to 8 of value to push.
      * @param {number} valueByte - Range: 0 <= value <= 0xFF (2 ^ 8 - 1).
      */
-    pushByte(countBitsToPush, valueByte) {
+    BitDataView.prototype.pushByte = function (countBitsToPush, valueByte) {
         countBitsToPush = assertIntMinMax(countBitsToPush, 0, 8);
         this.expandRightIfNeed(countBitsToPush);
         this._push_Uint8orLess_noAssertsNoExpand(countBitsToPush, valueByte);
-    }
+    };
     /**
      * UNSHIFT: write (unsigned integer) before begin of bitDataView and increase size.
      * @param {number} countBitsToUnshift - Count bits from 0 to 8 of value to unshift.
      * @param {number} valueByte - Range: 0 <= value <= 0xFF (2 ^ 8 - 1).
      */
-    unshiftByte(countBitsToUnshift, valueByte) {
+    BitDataView.prototype.unshiftByte = function (countBitsToUnshift, valueByte) {
         countBitsToUnshift = assertIntMinMax(countBitsToUnshift, 0, 8);
         this.expandLeftIfNeed(countBitsToUnshift);
         this._unshift_Uint8orLess_noAssertsNoExpand(countBitsToUnshift, valueByte);
-    }
+    };
     /**
      * SHIFT: read (unsigned integer) after begin of bitDataView and reduce size.
      * @param {number} countBitsToShift - Count bits from 0 to 8 of value to shift.
      * @return {number} - Range: 0 <= value <= 0xFF (2 ^ 8 - 1).
      */
-    shiftByte(countBitsToShift) {
+    BitDataView.prototype.shiftByte = function (countBitsToShift) {
         countBitsToShift = assertIntMinMax(countBitsToShift, 0, 8);
         return this._shift_Uint8orLess_noAsserts(countBitsToShift);
-    }
+    };
     /**
      * POP: read (unsigned integer) before end of bitDataView and reduce size.
      * @param {number} countBitsToPop - Count bits from 0 to 8 of value to pop.
      * @return {number} - Range: 0 <= value <= 0xFF (2 ^ 8 - 1).
      */
-    popByte(countBitsToPop) {
+    BitDataView.prototype.popByte = function (countBitsToPop) {
         countBitsToPop = assertIntMinMax(countBitsToPop, 0, 8);
         return this._pop_Uint8orLess_noAsserts(countBitsToPop);
-    }
+    };
     /********** PUBLIC SECTION. Data type: Uint. **********/
     /**
      * SET: write unsigned integer by virtual index until end of bitDataView and don't change size.
@@ -1485,82 +1534,82 @@ _countBitsShifted can not be < 0
      * @param {number} countBitsToSet - Count bits from 0 to 53 of value to set.
      * @param {number} valueUint - Range: 0 <= value <= 0x1FFFFFFFFFFFFF (2 ^ 53 - 1).
      */
-    setAtUint(bitIndexAt, countBitsToSet, valueUint) {
+    BitDataView.prototype.setAtUint = function (bitIndexAt, countBitsToSet, valueUint) {
         countBitsToSet = assertIntMinMax(countBitsToSet, 0, 53);
         bitIndexAt = assertIntMinMax(bitIndexAt, 0, this.getCountStoredBits() - countBitsToSet);
         this._setAt_Uint53orLess_noAsserts(bitIndexAt, countBitsToSet, valueUint);
-    }
+    };
     /**
      * SET: write unsigned integer by virtual index until end of bitDataView and don't change size.
      * @param {number} bitIndexUntil - Integer bit index until end.
      * @param {number} countBitsToSet - Count bits from 0 to 53 of value to set.
      * @param {number} valueUint - Range: 0 <= value <= 0x1FFFFFFFFFFFFF (2 ^ 53 - 1).
      */
-    setUntilUint(bitIndexUntil, countBitsToSet, valueUint) {
+    BitDataView.prototype.setUntilUint = function (bitIndexUntil, countBitsToSet, valueUint) {
         countBitsToSet = assertIntMinMax(countBitsToSet, 0, 53);
         bitIndexUntil = assertIntMinMax(bitIndexUntil, 0, this.getCountStoredBits() - countBitsToSet);
         this._setUntil_Uint53orLess_noAsserts(bitIndexUntil, countBitsToSet, valueUint);
-    }
+    };
     /**
      * GET: read unsigned integer by virtual index at begin of bitDataView and don't change size.
      * @param {number} bitIndexAt - Integer bit index until end.
      * @param {number} countBitsToGet - Count bits from 0 to 53 of value to get.
      * @return {number} - Range: 0 <= value <= 0x1FFFFFFFFFFFFF (2 ^ 53 - 1).
      */
-    getAtUint(bitIndexAt, countBitsToGet) {
+    BitDataView.prototype.getAtUint = function (bitIndexAt, countBitsToGet) {
         countBitsToGet = assertIntMinMax(countBitsToGet, 0, 53);
         bitIndexAt = assertIntMinMax(bitIndexAt, 0, this.getCountStoredBits() - countBitsToGet);
         return this._getAt_Uint53orLess_noAsserts(bitIndexAt, countBitsToGet);
-    }
+    };
     /**
      * GET: read unsigned integer by virtual index until end of bitDataView and don't change size.
      * @param {number} bitIndexUntil - Integer bit index until end.
      * @param {number} countBitsToGet - Count bits from 0 to 53 of value to get.
      * @return {number} - Range: 0 <= value <= 0x1FFFFFFFFFFFFF (2 ^ 53 - 1).
      */
-    getUntilUint(bitIndexUntil, countBitsToGet) {
+    BitDataView.prototype.getUntilUint = function (bitIndexUntil, countBitsToGet) {
         countBitsToGet = assertIntMinMax(countBitsToGet, 0, 53);
         bitIndexUntil = assertIntMinMax(bitIndexUntil, 0, this.getCountStoredBits() - countBitsToGet);
         return this._getUntil_Uint53orLess_noAsserts(bitIndexUntil, countBitsToGet);
-    }
+    };
     /**
      * PUSH: write (unsigned integer) after end of bitDataView and increase size.
      * @param {number} countBitsToPush - Count bits from 0 to 53 of value to push.
      * @param {number} valueUint - Range: 0 <= value <= 0x1FFFFFFFFFFFFF (2 ^ 53 - 1).
      */
-    pushUint(countBitsToPush, valueUint) {
+    BitDataView.prototype.pushUint = function (countBitsToPush, valueUint) {
         countBitsToPush = assertIntMinMax(countBitsToPush, 0, 53);
         this.expandRightIfNeed(countBitsToPush);
         this._push_Uint53orLess_noAssertsNoExpand(countBitsToPush, valueUint);
-    }
+    };
     /**
      * UNSHIFT: write (unsigned integer) before begin of bitDataView and increase size.
      * @param {number} countBitsToUnshift - Count bits from 0 to 53 of value to unshift.
      * @param {number} valueUint - Range: 0 <= value <= 0x1FFFFFFFFFFFFF (2 ^ 53 - 1).
      */
-    unshiftUint(countBitsToUnshift, valueUint) {
+    BitDataView.prototype.unshiftUint = function (countBitsToUnshift, valueUint) {
         countBitsToUnshift = assertIntMinMax(countBitsToUnshift, 0, 53);
         this.expandLeftIfNeed(countBitsToUnshift);
         this._unshift_Uint53orLess_noAssertsNoExpand(countBitsToUnshift, valueUint);
-    }
+    };
     /**
      * SHIFT: read (unsigned integer) after begin of bitDataView and reduce size.
      * @param {number} countBitsToShift - Count bits from 0 to 53 of value to shift.
      * @return {number} - Range: 0 <= value <= 0x1FFFFFFFFFFFFF (2 ^ 53 - 1).
      */
-    shiftUint(countBitsToShift) {
+    BitDataView.prototype.shiftUint = function (countBitsToShift) {
         countBitsToShift = assertIntMinMax(countBitsToShift, 0, 53);
         return this._shift_Uint53orLess_noAsserts(countBitsToShift);
-    }
+    };
     /**
      * POP: read (unsigned integer) before end of bitDataView and reduce size.
      * @param {number} countBitsToPop - Count bits from 0 to 53 of value to pop.
      * @return {number} - Range: 0 <= value <= 0x1FFFFFFFFFFFFF (2 ^ 53 - 1).
      */
-    popUint(countBitsToPop) {
+    BitDataView.prototype.popUint = function (countBitsToPop) {
         countBitsToPop = assertIntMinMax(countBitsToPop, 0, 53);
         return this._pop_Uint53orLess_noAsserts(countBitsToPop);
-    }
+    };
     /********** PUBLIC SECTION. Data type: Int. **********/
     /**
      * SET: write signed integer by virtual index until end of bitDataView and don't change size.
@@ -1568,82 +1617,82 @@ _countBitsShifted can not be < 0
      * @param {number} countBitsToSet - Count bits from 1 to 53 of value to set.
      * @param {number} valueInt - Range: -0x10000000000000 (2^52) <= value <= 0xFFFFFFFFFFFFF (2^52-1).
      */
-    setAtInt(bitIndexAt, countBitsToSet, valueInt) {
+    BitDataView.prototype.setAtInt = function (bitIndexAt, countBitsToSet, valueInt) {
         countBitsToSet = assertIntMinMax(countBitsToSet, 1, 53);
         bitIndexAt = assertIntMinMax(bitIndexAt, 0, this.getCountStoredBits() - countBitsToSet);
         this._setAt_Int53orLess_noAsserts(bitIndexAt, countBitsToSet, valueInt);
-    }
+    };
     /**
      * SET: write signed integer by virtual index until end of bitDataView and don't change size.
      * @param {number} bitIndexUntil - Integer bit index until end.
      * @param {number} countBitsToSet - Count bits from 1 to 53 of value to set.
      * @param {number} valueInt - Range: -0x10000000000000 (2^52) <= value <= 0xFFFFFFFFFFFFF (2^52-1).
      */
-    setUntilInt(bitIndexUntil, countBitsToSet, valueInt) {
+    BitDataView.prototype.setUntilInt = function (bitIndexUntil, countBitsToSet, valueInt) {
         countBitsToSet = assertIntMinMax(countBitsToSet, 1, 53);
         bitIndexUntil = assertIntMinMax(bitIndexUntil, 0, this.getCountStoredBits() - countBitsToSet);
         this._setUntil_Int53orLess_noAsserts(bitIndexUntil, countBitsToSet, valueInt);
-    }
+    };
     /**
      * GET: read signed integer by virtual index at begin of bitDataView and don't change size.
      * @param {number} bitIndexAt - Integer bit index until end.
      * @param {number} countBitsToGet - Count bits from 1 to 53 of value to get.
      * @return {number} - Range: -0x10000000000000 (2^52) <= value <= 0xFFFFFFFFFFFFF (2^52-1).
      */
-    getAtInt(bitIndexAt, countBitsToGet) {
+    BitDataView.prototype.getAtInt = function (bitIndexAt, countBitsToGet) {
         countBitsToGet = assertIntMinMax(countBitsToGet, 1, 53);
         bitIndexAt = assertIntMinMax(bitIndexAt, 0, this.getCountStoredBits() - countBitsToGet);
         return this._getAt_Int53orLess_noAsserts(bitIndexAt, countBitsToGet);
-    }
+    };
     /**
      * GET: read signed integer by virtual index until end of bitDataView and don't change size.
      * @param {number} bitIndexUntil - Integer bit index until end.
      * @param {number} countBitsToGet - Count bits from 1 to 53 of value to get.
      * @return {number} - Range: -0x10000000000000 (2^52) <= value <= 0xFFFFFFFFFFFFF (2^52-1).
      */
-    getUntilInt(bitIndexUntil, countBitsToGet) {
+    BitDataView.prototype.getUntilInt = function (bitIndexUntil, countBitsToGet) {
         countBitsToGet = assertIntMinMax(countBitsToGet, 1, 53);
         bitIndexUntil = assertIntMinMax(bitIndexUntil, 0, this.getCountStoredBits() - countBitsToGet);
         return this._getUntil_Int53orLess_noAsserts(bitIndexUntil, countBitsToGet);
-    }
+    };
     /**
      * PUSH: write (signed integer) after end of bitDataView and increase size.
      * @param {number} countBitsToPush - Count bits from 1 to 53 of value to push.
      * @param {number} valueInt - Range: -0x10000000000000 (2^52) <= value <= 0xFFFFFFFFFFFFF (2^52-1).
      */
-    pushInt(countBitsToPush, valueInt) {
+    BitDataView.prototype.pushInt = function (countBitsToPush, valueInt) {
         countBitsToPush = assertIntMinMax(countBitsToPush, 1, 53);
         this.expandRightIfNeed(countBitsToPush);
         this._push_Int53orLess_noAssertsNoExpand(countBitsToPush, valueInt);
-    }
+    };
     /**
      * UNSHIFT: write (signed integer) before begin of bitDataView and increase size.
      * @param {number} countBitsToUnshift - Count bits from 1 to 53 of value to unshift.
      * @param {number} valueInt - Range: -0x10000000000000 (2^52) <= value <= 0xFFFFFFFFFFFFF (2^52-1).
      */
-    unshiftInt(countBitsToUnshift, valueInt) {
+    BitDataView.prototype.unshiftInt = function (countBitsToUnshift, valueInt) {
         countBitsToUnshift = assertIntMinMax(countBitsToUnshift, 1, 53);
         this.expandLeftIfNeed(countBitsToUnshift);
         this._unshift_Int53orLess_noAssertsNoExpand(countBitsToUnshift, valueInt);
-    }
+    };
     /**
      * SHIFT: read (signed integer) after begin of bitDataView and reduce size.
      * @param {number} countBitsToShift - Count bits from 1 to 53 of value to shift.
      * @return {number} - Range: -0x10000000000000 (2^52) <= value <= 0xFFFFFFFFFFFFF (2^52-1).
      */
-    shiftInt(countBitsToShift) {
+    BitDataView.prototype.shiftInt = function (countBitsToShift) {
         countBitsToShift = assertIntMinMax(countBitsToShift, 1, 53);
         return this._shift_Int53orLess_noAsserts(countBitsToShift);
-    }
+    };
     /**
      * POP: read (signed integer) before end of bitDataView and reduce size.
      * @param {number} countBitsToPop - Count bits from 1 to 53 of value to pop.
      * @return {number} - Range: -0x10000000000000 (2^52) <= value <= 0xFFFFFFFFFFFFF (2^52-1).
      */
-    popInt(countBitsToPop) {
+    BitDataView.prototype.popInt = function (countBitsToPop) {
         countBitsToPop = assertIntMinMax(countBitsToPop, 1, 53);
         return this._pop_Int53orLess_noAsserts(countBitsToPop);
-    }
+    };
     /********** PUBLIC SECTION. Data type: BigUint. **********/
     /**
      * SET: write bigint by virtual index until end of bitDataView and don't change size.
@@ -1651,82 +1700,82 @@ _countBitsShifted can not be < 0
      * @param {number} countBitsToSet - Count bits from 0 to 64 of value to set.
      * @param {bigint} valueBigUint - Range: 0n <= value <= 0xFFFFFFFFFFFFFFFFn (2 ^ 64 - 1).
      */
-    setAtBigUint(bitIndexAt, countBitsToSet, valueBigUint) {
+    BitDataView.prototype.setAtBigUint = function (bitIndexAt, countBitsToSet, valueBigUint) {
         countBitsToSet = assertIntMinMax(countBitsToSet, 0, 64);
         bitIndexAt = assertIntMinMax(bitIndexAt, 0, this.getCountStoredBits() - countBitsToSet);
         this._setAt_BigUint64orLess_noAsserts(bitIndexAt, countBitsToSet, valueBigUint);
-    }
+    };
     /**
      * SET: write bigint by virtual index until end of bitDataView and don't change size.
      * @param {number} bitIndexUntil - Integer bit index until end.
      * @param {number} countBitsToSet - Count bits from 0 to 64 of value to set.
      * @param {bigint} valueBigUint - Range: 0n <= value <= 0xFFFFFFFFFFFFFFFFn (2 ^ 64 - 1).
      */
-    setUntilBigUint(bitIndexUntil, countBitsToSet, valueBigUint) {
+    BitDataView.prototype.setUntilBigUint = function (bitIndexUntil, countBitsToSet, valueBigUint) {
         countBitsToSet = assertIntMinMax(countBitsToSet, 0, 64);
         bitIndexUntil = assertIntMinMax(bitIndexUntil, 0, this.getCountStoredBits() - countBitsToSet);
         this._setUntil_BigUint64orLess_noAsserts(bitIndexUntil, countBitsToSet, valueBigUint);
-    }
+    };
     /**
      * GET: read bigint by virtual index at begin of bitDataView and don't change size.
      * @param {number} bitIndexAt - Integer bit index until end.
      * @param {number} countBitsToGet - Count bits from 0 to 64 of value to get.
      * @return {bigint} - Range: 0n <= value <= 0xFFFFFFFFFFFFFFFFn (2 ^ 64 - 1).
      */
-    getAtBigUint(bitIndexAt, countBitsToGet) {
+    BitDataView.prototype.getAtBigUint = function (bitIndexAt, countBitsToGet) {
         countBitsToGet = assertIntMinMax(countBitsToGet, 0, 64);
         bitIndexAt = assertIntMinMax(bitIndexAt, 0, this.getCountStoredBits() - countBitsToGet);
         return this._getAt_BigUint64orLess_noAsserts(bitIndexAt, countBitsToGet);
-    }
+    };
     /**
      * GET: read bigint by virtual index until end of bitDataView and don't change size.
      * @param {number} bitIndexUntil - Integer bit index until end.
      * @param {number} countBitsToGet - Count bits from 0 to 64 of value to get.
      * @return {bigint} - Range: 0n <= value <= 0xFFFFFFFFFFFFFFFFn (2 ^ 64 - 1).
      */
-    getUntilBigUint(bitIndexUntil, countBitsToGet) {
+    BitDataView.prototype.getUntilBigUint = function (bitIndexUntil, countBitsToGet) {
         countBitsToGet = assertIntMinMax(countBitsToGet, 0, 64);
         bitIndexUntil = assertIntMinMax(bitIndexUntil, 0, this.getCountStoredBits() - countBitsToGet);
         return this._getUntil_BigUint64orLess_noAsserts(bitIndexUntil, countBitsToGet);
-    }
+    };
     /**
      * PUSH: write (bigint) after end of bitDataView and increase size.
      * @param {number} countBitsToPush - Count bits from 0 to 64 of value to push.
      * @param {bigint} valueBigUint - Range: 0n <= value <= 0xFFFFFFFFFFFFFFFFn (2 ^ 64 - 1).
      */
-    pushBigUint(countBitsToPush, valueBigUint) {
+    BitDataView.prototype.pushBigUint = function (countBitsToPush, valueBigUint) {
         countBitsToPush = assertIntMinMax(countBitsToPush, 0, 64);
         this.expandRightIfNeed(countBitsToPush);
         this._push_BigUint64orLess_noAssertsNoExpand(countBitsToPush, valueBigUint);
-    }
+    };
     /**
      * UNSHIFT: write (bigint) before begin of bitDataView and increase size.
      * @param {number} countBitsToUnshift - Count bits from 0 to 64 of value to unshift.
      * @param {bigint} valueBigUint - Range: 0n <= value <= 0xFFFFFFFFFFFFFFFFn (2 ^ 64 - 1).
      */
-    unshiftBigUint(countBitsToUnshift, valueBigUint) {
+    BitDataView.prototype.unshiftBigUint = function (countBitsToUnshift, valueBigUint) {
         countBitsToUnshift = assertIntMinMax(countBitsToUnshift, 0, 64);
         this.expandLeftIfNeed(countBitsToUnshift);
         this._unshift_BigUint64orLess_noAssertsNoExpand(countBitsToUnshift, valueBigUint);
-    }
+    };
     /**
      * SHIFT: read (bigint) after begin of bitDataView and reduce size.
      * @param {number} countBitsToShift - Count bits from 0 to 64 of value to shift.
      * @return {bigint} - Range: 0n <= value <= 0xFFFFFFFFFFFFFFFFn (2 ^ 64 - 1).
      */
-    shiftBigUint(countBitsToShift) {
+    BitDataView.prototype.shiftBigUint = function (countBitsToShift) {
         countBitsToShift = assertIntMinMax(countBitsToShift, 0, 64);
         return this._shift_BigUint64orLess_noAsserts(countBitsToShift);
-    }
+    };
     /**
      * POP: read (bigint) before end of bitDataView and reduce size.
      * @param {number} countBitsToPop - Count bits from 0 to 64 of value to pop.
      * @return {bigint} - Range: 0n <= value <= 0xFFFFFFFFFFFFFFFFn (2 ^ 64 - 1).
      */
-    popBigUint(countBitsToPop) {
+    BitDataView.prototype.popBigUint = function (countBitsToPop) {
         countBitsToPop = assertIntMinMax(countBitsToPop, 0, 64);
         return this._pop_BigUint64orLess_noAsserts(countBitsToPop);
-    }
+    };
     /********** PUBLIC SECTION. Data type: BigInt. **********/
     /**
      * SET: write BigInt by virtual index until end of bitDataView and don't change size.
@@ -1734,216 +1783,216 @@ _countBitsShifted can not be < 0
      * @param {number} countBitsToSet - Count bits from 1 to 64 of value to set.
      * @param {bigint} valueBigInt - Range: -0x8000000000000000n (2^63) <= value <= 0x7FFFFFFFFFFFFFFFn (2^63-1).
      */
-    setAtBigInt(bitIndexAt, countBitsToSet, valueBigInt) {
+    BitDataView.prototype.setAtBigInt = function (bitIndexAt, countBitsToSet, valueBigInt) {
         countBitsToSet = assertIntMinMax(countBitsToSet, 1, 64);
         bitIndexAt = assertIntMinMax(bitIndexAt, 0, this.getCountStoredBits() - countBitsToSet);
         this._setAt_BigInt64orLess_noAsserts(bitIndexAt, countBitsToSet, valueBigInt);
-    }
+    };
     /**
      * SET: write BigInt by virtual index until end of bitDataView and don't change size.
      * @param {number} bitIndexUntil - Integer bit index until end.
      * @param {number} countBitsToSet - Count bits from 1 to 64 of value to set.
      * @param {bigint} valueBigInt - Range: -0x8000000000000000n (2^63) <= value <= 0x7FFFFFFFFFFFFFFFn (2^63-1).
      */
-    setUntilBigInt(bitIndexUntil, countBitsToSet, valueBigInt) {
+    BitDataView.prototype.setUntilBigInt = function (bitIndexUntil, countBitsToSet, valueBigInt) {
         countBitsToSet = assertIntMinMax(countBitsToSet, 1, 64);
         bitIndexUntil = assertIntMinMax(bitIndexUntil, 0, this.getCountStoredBits() - countBitsToSet);
         this._setUntil_BigInt64orLess_noAsserts(bitIndexUntil, countBitsToSet, valueBigInt);
-    }
+    };
     /**
      * GET: read BigInt by virtual index at begin of bitDataView and don't change size.
      * @param {number} bitIndexAt - Integer bit index until end.
      * @param {number} countBitsToGet - Count bits from 1 to 64 of value to get.
      * @return {bigint} - Range: -0x8000000000000000n (2^63) <= value <= 0x7FFFFFFFFFFFFFFFn (2^63-1).
      */
-    getAtBigInt(bitIndexAt, countBitsToGet) {
+    BitDataView.prototype.getAtBigInt = function (bitIndexAt, countBitsToGet) {
         countBitsToGet = assertIntMinMax(countBitsToGet, 1, 64);
         bitIndexAt = assertIntMinMax(bitIndexAt, 0, this.getCountStoredBits() - countBitsToGet);
         return this._getAt_BigInt64orLess_noAsserts(bitIndexAt, countBitsToGet);
-    }
+    };
     /**
      * GET: read BigInt by virtual index until end of bitDataView and don't change size.
      * @param {number} bitIndexUntil - Integer bit index until end.
      * @param {number} countBitsToGet - Count bits from 1 to 64 of value to get.
      * @return {bigint} - Range: -0x8000000000000000n (2^63) <= value <= 0x7FFFFFFFFFFFFFFFn (2^63-1).
      */
-    getUntilBigInt(bitIndexUntil, countBitsToGet) {
+    BitDataView.prototype.getUntilBigInt = function (bitIndexUntil, countBitsToGet) {
         countBitsToGet = assertIntMinMax(countBitsToGet, 1, 64);
         bitIndexUntil = assertIntMinMax(bitIndexUntil, 0, this.getCountStoredBits() - countBitsToGet);
         return this._getUntil_BigInt64orLess_noAsserts(bitIndexUntil, countBitsToGet);
-    }
+    };
     /**
      * PUSH: write (BigInt) after end of bitDataView and increase size.
      * @param {number} countBitsToPush - Count bits from 1 to 64 of value to push.
      * @param {bigint} valueBigInt - Range: -0x8000000000000000n (2^63) <= value <= 0x7FFFFFFFFFFFFFFFn (2^63-1).
      */
-    pushBigInt(countBitsToPush, valueBigInt) {
+    BitDataView.prototype.pushBigInt = function (countBitsToPush, valueBigInt) {
         countBitsToPush = assertIntMinMax(countBitsToPush, 1, 64);
         this.expandRightIfNeed(countBitsToPush);
         this._push_BigInt64orLess_noAssertsNoExpand(countBitsToPush, valueBigInt);
-    }
+    };
     /**
      * UNSHIFT: write (BigInt) before begin of bitDataView and increase size.
      * @param {number} countBitsToUnshift - Count bits from 1 to 64 of value to unshift.
      * @param {bigint} valueBigInt - Range: -0x8000000000000000n (2^63) <= value <= 0x7FFFFFFFFFFFFFFFn (2^63-1).
      */
-    unshiftBigInt(countBitsToUnshift, valueBigInt) {
+    BitDataView.prototype.unshiftBigInt = function (countBitsToUnshift, valueBigInt) {
         countBitsToUnshift = assertIntMinMax(countBitsToUnshift, 1, 64);
         this.expandLeftIfNeed(countBitsToUnshift);
         this._unshift_BigInt64orLess_noAssertsNoExpand(countBitsToUnshift, valueBigInt);
-    }
+    };
     /**
      * SHIFT: read (BigInt) after begin of bitDataView and reduce size.
      * @param {number} countBitsToShift - Count bits from 1 to 64 of value to shift.
      * @return {bigint} - Range: -0x8000000000000000n (2^63) <= value <= 0x7FFFFFFFFFFFFFFFn (2^63-1).
      */
-    shiftBigInt(countBitsToShift) {
+    BitDataView.prototype.shiftBigInt = function (countBitsToShift) {
         countBitsToShift = assertIntMinMax(countBitsToShift, 1, 64);
         return this._shift_BigInt64orLess_noAsserts(countBitsToShift);
-    }
+    };
     /**
      * POP: read (BigInt) before end of bitDataView and reduce size.
      * @param {number} countBitsToPop - Count bits from 1 to 64 of value to pop.
      * @return {bigint} - Range: -0x8000000000000000n (2^63) <= value <= 0x7FFFFFFFFFFFFFFFn (2^63-1).
      */
-    popBigInt(countBitsToPop) {
+    BitDataView.prototype.popBigInt = function (countBitsToPop) {
         countBitsToPop = assertIntMinMax(countBitsToPop, 1, 64);
         return this._pop_BigInt64orLess_noAsserts(countBitsToPop);
-    }
+    };
     /********** PUBLIC SECTION. Data type: Float32. **********/
     /**
      * SET: write floating number 32 bits by virtual index until end of bitDataView and don't change size.
      * @param {number} bitIndexAt - Integer bit index until end.
      * @param {number} valueFloat32 - Range: same DataView.getFloat32.
      */
-    setAtFloat32(bitIndexAt, valueFloat32) {
+    BitDataView.prototype.setAtFloat32 = function (bitIndexAt, valueFloat32) {
         bitIndexAt = assertIntMinMax(bitIndexAt, 0, this.getCountStoredBits() - 32);
         this._setAt_Float32_noAsserts(bitIndexAt, valueFloat32);
-    }
+    };
     /**
      * SET: write floating number 32 bits by virtual index until end of bitDataView and don't change size.
      * @param {number} bitIndexUntil - Integer bit index until end.
      * @param {number} valueFloat32 - Range: same DataView.getFloat32.
      */
-    setUntilFloat32(bitIndexUntil, valueFloat32) {
+    BitDataView.prototype.setUntilFloat32 = function (bitIndexUntil, valueFloat32) {
         bitIndexUntil = assertIntMinMax(bitIndexUntil, 0, this.getCountStoredBits() - 32);
         this._setUntil_Float32_noAsserts(bitIndexUntil, valueFloat32);
-    }
+    };
     /**
      * GET: read floating number 32 bits by virtual index at begin of bitDataView and don't change size.
      * @param {number} bitIndexAt - Integer bit index until end.
      * @return {number} - Range: same DataView.getFloat32.
      */
-    getAtFloat32(bitIndexAt) {
+    BitDataView.prototype.getAtFloat32 = function (bitIndexAt) {
         bitIndexAt = assertIntMinMax(bitIndexAt, 0, this.getCountStoredBits() - 32);
         return this._getAt_Float32_noAsserts(bitIndexAt);
-    }
+    };
     /**
      * GET: read floating number 32 bits by virtual index until end of bitDataView and don't change size.
      * @param {number} bitIndexUntil - Integer bit index until end.
      * @return {number} - Range: same DataView.getFloat32.
      */
-    getUntilFloat32(bitIndexUntil) {
+    BitDataView.prototype.getUntilFloat32 = function (bitIndexUntil) {
         bitIndexUntil = assertIntMinMax(bitIndexUntil, 0, this.getCountStoredBits() - 32);
         return this._getUntil_Float32_noAsserts(bitIndexUntil);
-    }
+    };
     /**
      * PUSH: write (floating number 32 bits) after end of bitDataView and increase size.
      * @param {number} valueFloat32 - Range: same DataView.getFloat32.
      */
-    pushFloat32(valueFloat32) {
+    BitDataView.prototype.pushFloat32 = function (valueFloat32) {
         this.expandRightIfNeed(32);
         this._push_Float32_noAssertsNoExpand(valueFloat32);
-    }
+    };
     /**
      * UNSHIFT: write (floating number 32 bits) before begin of bitDataView and increase size.
      * @param {number} valueFloat32 - Range: same DataView.getFloat32.
      */
-    unshiftFloat32(valueFloat32) {
+    BitDataView.prototype.unshiftFloat32 = function (valueFloat32) {
         this.expandLeftIfNeed(32);
         this._unshift_Float32_noAssertsNoExpand(valueFloat32);
-    }
+    };
     /**
      * SHIFT: read (floating number 32 bits) after begin of bitDataView and reduce size.
      * @return {number} - Range: same DataView.getFloat32.
      */
-    shiftFloat32() {
+    BitDataView.prototype.shiftFloat32 = function () {
         return this._shift_Float32_noAsserts();
-    }
+    };
     /**
      * POP: read (floating number 32 bits) before end of bitDataView and reduce size.
      * @return {number} - Range: same DataView.getFloat32.
      */
-    popFloat32() {
+    BitDataView.prototype.popFloat32 = function () {
         return this._pop_Float32_noAsserts();
-    }
+    };
     /********** PUBLIC SECTION. Data type: Float64. **********/
     /**
      * SET: write floating number 64 bits by virtual index until end of bitDataView and don't change size.
      * @param {number} bitIndexAt - Integer bit index until end.
      * @param {number} valueFloat64 - Range: any number.
      */
-    setAtFloat64(bitIndexAt, valueFloat64) {
+    BitDataView.prototype.setAtFloat64 = function (bitIndexAt, valueFloat64) {
         bitIndexAt = assertIntMinMax(bitIndexAt, 0, this.getCountStoredBits() - 64);
         this._setAt_Float64_noAsserts(bitIndexAt, valueFloat64);
-    }
+    };
     /**
      * SET: write floating number 64 bits by virtual index until end of bitDataView and don't change size.
      * @param {number} bitIndexUntil - Integer bit index until end.
      * @param {number} valueFloat64 - Range: any number.
      */
-    setUntilFloat64(bitIndexUntil, valueFloat64) {
+    BitDataView.prototype.setUntilFloat64 = function (bitIndexUntil, valueFloat64) {
         bitIndexUntil = assertIntMinMax(bitIndexUntil, 0, this.getCountStoredBits() - 64);
         this._setUntil_Float64_noAsserts(bitIndexUntil, valueFloat64);
-    }
+    };
     /**
      * GET: read floating number 64 bits by virtual index at begin of bitDataView and don't change size.
      * @param {number} bitIndexAt - Integer bit index until end.
      * @return {number} - Range: any number.
      */
-    getAtFloat64(bitIndexAt) {
+    BitDataView.prototype.getAtFloat64 = function (bitIndexAt) {
         bitIndexAt = assertIntMinMax(bitIndexAt, 0, this.getCountStoredBits() - 64);
         return this._getAt_Float64_noAsserts(bitIndexAt);
-    }
+    };
     /**
      * GET: read floating number 64 bits by virtual index until end of bitDataView and don't change size.
      * @param {number} bitIndexUntil - Integer bit index until end.
      * @return {number} - Range: any number.
      */
-    getUntilFloat64(bitIndexUntil) {
+    BitDataView.prototype.getUntilFloat64 = function (bitIndexUntil) {
         bitIndexUntil = assertIntMinMax(bitIndexUntil, 0, this.getCountStoredBits() - 64);
         return this._getUntil_Float64_noAsserts(bitIndexUntil);
-    }
+    };
     /**
      * PUSH: write (floating number 64 bits) after end of bitDataView and increase size.
      * @param {number} valueFloat64 - Range: any number.
      */
-    pushFloat64(valueFloat64) {
+    BitDataView.prototype.pushFloat64 = function (valueFloat64) {
         this.expandRightIfNeed(64);
         this._push_Float64_noAssertsNoExpand(valueFloat64);
-    }
+    };
     /**
      * UNSHIFT: write (floating number 64 bits) before begin of bitDataView and increase size.
      * @param {number} valueFloat64 - Range: any number.
      */
-    unshiftFloat64(valueFloat64) {
+    BitDataView.prototype.unshiftFloat64 = function (valueFloat64) {
         this.expandLeftIfNeed(64);
         this._unshift_Float64_noAssertsNoExpand(valueFloat64);
-    }
+    };
     /**
      * SHIFT: read (floating number 64 bits) after begin of bitDataView and reduce size.
      * @return {number} - Range: any number.
      */
-    shiftFloat64() {
+    BitDataView.prototype.shiftFloat64 = function () {
         return this._shift_Float64_noAsserts();
-    }
+    };
     /**
      * POP: read (floating number 64 bits) before end of bitDataView and reduce size.
      * @return {number} - Range: any number.
      */
-    popFloat64() {
+    BitDataView.prototype.popFloat64 = function () {
         return this._pop_Float64_noAsserts();
-    }
+    };
     /********** PUBLIC SECTION. Data type: DataView. **********/
     /**
      * SET: write instanceOf DataView by virtual index until end of bitDataView and don't change size.
@@ -1952,11 +2001,12 @@ _countBitsShifted can not be < 0
      * @param {DataView} valueDataView - Range: any number.
      * @param {boolean} littleEndian - order of bytes, normal or reverse.
      */
-    setAtDataView(bitIndexAt, countBitsToSet, valueDataView, littleEndian = false) {
+    BitDataView.prototype.setAtDataView = function (bitIndexAt, countBitsToSet, valueDataView, littleEndian) {
+        if (littleEndian === void 0) { littleEndian = false; }
         countBitsToSet = assertIntMinMax(countBitsToSet, 0, 0xFFFFFFFE);
         bitIndexAt = assertIntMinMax(bitIndexAt, 0, this.getCountStoredBits() - countBitsToSet);
         this._setAt_DataView_noAsserts(bitIndexAt, countBitsToSet, valueDataView, littleEndian);
-    }
+    };
     /**
      * SET: write instanceOf DataView by virtual index until end of bitDataView and don't change size.
      * @param {number} bitIndexUntil - Integer bit index until end.
@@ -1964,11 +2014,12 @@ _countBitsShifted can not be < 0
      * @param {DataView} valueDataView - Range: any number.
      * @param {boolean} littleEndian - order of bytes, normal or reverse.
      */
-    setUntilDataView(bitIndexUntil, countBitsToSet, valueDataView, littleEndian = false) {
+    BitDataView.prototype.setUntilDataView = function (bitIndexUntil, countBitsToSet, valueDataView, littleEndian) {
+        if (littleEndian === void 0) { littleEndian = false; }
         countBitsToSet = assertIntMinMax(countBitsToSet, 0, 0xFFFFFFFE);
         bitIndexUntil = assertIntMinMax(bitIndexUntil, 0, this.getCountStoredBits() - countBitsToSet);
         this._setUntil_DataView_noAsserts(bitIndexUntil, countBitsToSet, valueDataView, littleEndian);
-    }
+    };
     /**
      * GET: read instanceOf DataView by virtual index at begin of bitDataView and don't change size.
      * @param {number} bitIndexAt - Integer bit index until end.
@@ -1976,11 +2027,12 @@ _countBitsShifted can not be < 0
      * @param {boolean} littleEndian - order of bytes, normal or reverse.
      * @return {DataView} - Range: any number.
      */
-    getAtDataView(bitIndexAt, countBitsToGet, littleEndian = false) {
+    BitDataView.prototype.getAtDataView = function (bitIndexAt, countBitsToGet, littleEndian) {
+        if (littleEndian === void 0) { littleEndian = false; }
         countBitsToGet = assertIntMinMax(countBitsToGet, 0, 0xFFFFFFFE);
         bitIndexAt = assertIntMinMax(bitIndexAt, 0, this.getCountStoredBits() - countBitsToGet);
         return this._getAt_DataView_noAsserts(bitIndexAt, countBitsToGet, littleEndian);
-    }
+    };
     /**
      * GET: read instanceOf DataView by virtual index until end of bitDataView and don't change size.
      * @param {number} bitIndexUntil - Integer bit index until end.
@@ -1988,53 +2040,59 @@ _countBitsShifted can not be < 0
      * @param {boolean} littleEndian - order of bytes, normal or reverse.
      * @return {DataView} - Range: any number.
      */
-    getUntilDataView(bitIndexUntil, countBitsToGet, littleEndian = false) {
+    BitDataView.prototype.getUntilDataView = function (bitIndexUntil, countBitsToGet, littleEndian) {
+        if (littleEndian === void 0) { littleEndian = false; }
         countBitsToGet = assertIntMinMax(countBitsToGet, 0, 0xFFFFFFFE);
         bitIndexUntil = assertIntMinMax(bitIndexUntil, 0, this.getCountStoredBits() - countBitsToGet);
         return this._getUntil_DataView_noAsserts(bitIndexUntil, countBitsToGet, littleEndian);
-    }
+    };
     /**
      * PUSH: write (instanceOf DataView) after end of bitDataView and increase size.
      * @param {number} countBitsToPush - Count bits from 0 to 0xFFFFFFFE of value to push.
      * @param {DataView} valueDataView - Range: any number.
      * @param {boolean} littleEndian - order of bytes, normal or reverse.
      */
-    pushDataView(countBitsToPush, valueDataView, littleEndian = false) {
+    BitDataView.prototype.pushDataView = function (countBitsToPush, valueDataView, littleEndian) {
+        if (littleEndian === void 0) { littleEndian = false; }
         countBitsToPush = assertIntMinMax(countBitsToPush, 0, 0xFFFFFFFE);
         this.expandRightIfNeed(countBitsToPush);
         this._push_DataView_noAssertsNoExpand(countBitsToPush, valueDataView, littleEndian);
-    }
+    };
     /**
      * UNSHIFT: write (instanceOf DataView) before begin of bitDataView and increase size.
      * @param {number} countBitsToUnshift - Count bits from 0 to 0xFFFFFFFE of value to unshift.
      * @param {DataView} valueDataView - Range: any number.
      * @param {boolean} littleEndian - order of bytes, normal or reverse.
      */
-    unshiftDataView(countBitsToUnshift, valueDataView, littleEndian = false) {
+    BitDataView.prototype.unshiftDataView = function (countBitsToUnshift, valueDataView, littleEndian) {
+        if (littleEndian === void 0) { littleEndian = false; }
         countBitsToUnshift = assertIntMinMax(countBitsToUnshift, 0, 0xFFFFFFFE);
         this.expandLeftIfNeed(countBitsToUnshift);
         this._unshift_DataView_noAssertsNoExpand(countBitsToUnshift, valueDataView, littleEndian);
-    }
+    };
     /**
      * SHIFT: read (instanceOf DataView) after begin of bitDataView and reduce size.
      * @param {number} countBitsToShift - Count bits from 0 to 0xFFFFFFFE of value to shift.
      * @param {boolean} littleEndian - order of bytes, normal or reverse.
      * @return {DataView} - Range: any number.
      */
-    shiftDataView(countBitsToShift, littleEndian = false) {
+    BitDataView.prototype.shiftDataView = function (countBitsToShift, littleEndian) {
+        if (littleEndian === void 0) { littleEndian = false; }
         countBitsToShift = assertIntMinMax(countBitsToShift, 0, 0xFFFFFFFE);
         return this._shift_DataView_noAsserts(countBitsToShift, littleEndian);
-    }
+    };
     /**
      * POP: read (instanceOf DataView) before end of bitDataView and reduce size.
      * @param {number} countBitsToPop - Count bits from 0 to 0xFFFFFFFE of value to pop.
      * @param {boolean} littleEndian - order of bytes, normal or reverse.
      * @return {DataView} - Range: any number.
      */
-    popDataView(countBitsToPop, littleEndian = false) {
+    BitDataView.prototype.popDataView = function (countBitsToPop, littleEndian) {
+        if (littleEndian === void 0) { littleEndian = false; }
         countBitsToPop = assertIntMinMax(countBitsToPop, 0, 0xFFFFFFFE);
         return this._pop_DataView_noAsserts(countBitsToPop, littleEndian);
-    }
-}
+    };
+    return BitDataView;
+}());
+exports.BitDataView = BitDataView;
 //let tempBitDataView = new BitDataView(tmpArr8.buffer);
-//# sourceMappingURL=BitDataView.js.map

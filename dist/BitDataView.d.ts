@@ -19,7 +19,6 @@
  * @date 2023-12-23
  *
  @verbatim
- Copyright (c) 2023 telemok.com
 
  Licensed under the Apache License, Version 2.0(the "License");
  you may not use this file except in compliance with the License.

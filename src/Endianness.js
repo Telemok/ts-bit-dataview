@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @file    Endianness.ts
 
@@ -21,54 +22,57 @@
  * RISC-V and ARM support both
  * JavaScript DataView use big-endian by default (why?)
  */
-export var EnumEndianness;
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Endianness = exports.EnumEndianness = void 0;
+var EnumEndianness;
 (function (EnumEndianness) {
     EnumEndianness[EnumEndianness["LITTLE_ENDIAN"] = 0] = "LITTLE_ENDIAN";
     EnumEndianness[EnumEndianness["BIG_ENDIAN"] = 1] = "BIG_ENDIAN";
-})(EnumEndianness || (EnumEndianness = {}));
-export class Endianness {
-    endianness;
-    constructor(initialEnumEndianness = EnumEndianness.LITTLE_ENDIAN) {
+})(EnumEndianness || (exports.EnumEndianness = EnumEndianness = {}));
+var Endianness = /** @class */ (function () {
+    function Endianness(initialEnumEndianness) {
+        if (initialEnumEndianness === void 0) { initialEnumEndianness = EnumEndianness.LITTLE_ENDIAN; }
         this.endianness = initialEnumEndianness;
         /*Attention!!! In JavaScript DataView by default is Big Endian!!!*/
     }
-    isBigEndian() {
+    Endianness.prototype.isBigEndian = function () {
         return this.endianness === EnumEndianness.BIG_ENDIAN;
-    }
-    isLittleEndian() {
+    };
+    Endianness.prototype.isLittleEndian = function () {
         return this.endianness === EnumEndianness.LITTLE_ENDIAN;
-    }
-    _setBigEndian() {
+    };
+    Endianness.prototype._setBigEndian = function () {
         this.endianness = EnumEndianness.BIG_ENDIAN;
-    }
-    setBigEndian() {
+    };
+    Endianness.prototype.setBigEndian = function () {
         return this.set(EnumEndianness.BIG_ENDIAN);
-    }
-    _setLittleEndian() {
+    };
+    Endianness.prototype._setLittleEndian = function () {
         this.endianness = EnumEndianness.LITTLE_ENDIAN;
-    }
-    setLittleEndian() {
+    };
+    Endianness.prototype.setLittleEndian = function () {
         return this.set(EnumEndianness.LITTLE_ENDIAN);
-    }
-    get() {
+    };
+    Endianness.prototype.get = function () {
         return this.endianness;
-    }
-    _set(newEnumEndianness) {
+    };
+    Endianness.prototype._set = function (newEnumEndianness) {
         this.endianness = newEnumEndianness;
-    }
-    set(newEnumEndianness) {
-        let changed = this.endianness !== newEnumEndianness;
+    };
+    Endianness.prototype.set = function (newEnumEndianness) {
+        var changed = this.endianness !== newEnumEndianness;
         this.endianness = newEnumEndianness;
         return changed;
-    }
-    toString() {
+    };
+    Endianness.prototype.toString = function () {
         return EnumEndianness[this.endianness];
-    }
-    setRandom() {
+    };
+    Endianness.prototype.setRandom = function () {
         if (Math.random() > 0.5)
             this.setLittleEndian();
         else
             this.setBigEndian();
-    }
-}
-//# sourceMappingURL=Endianness.js.map
+    };
+    return Endianness;
+}());
+exports.Endianness = Endianness;
