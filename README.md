@@ -179,16 +179,18 @@ protocol.addEventListener('readByte', event =>{
 ## Source code:
 https://github.com/Telemok/ts-bit-dataview.git
 
-## Installation:
-1. Create your NodeJs, Browser or Webview app.
-2. Run in console: <ins>npm install git+https://github.com/Telemok/ts-bit-dataview.git </ins>
-3. Code: <ins>import { BitDataView } from '@telemok/ts-bit-dataview';</ins>
-4. Code: <ins>const bitDataView = new BitDataView();</ins>
+## Installation to NodeJs:
+1. ><ins>npm install git+https://github.com/Telemok/ts-bit-dataview.git </ins>
+2. 
+```javascript
+import { BitDataView } from '@telemok/ts-bit-dataview';
+const bitDataView = new BitDataView();
+```
+
 
 ## Installation to DOM .html
-<script type="module">
+script type="module">
 import {BitDataView} from "https://cdn.jsdelivr.net/gh/Telemok/ts-bit-dataview/dist/es-bundle.min.js"
-</script>
 
 ## Main functions:
 ```javascript
