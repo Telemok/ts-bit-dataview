@@ -185,6 +185,11 @@ https://github.com/Telemok/ts-bit-dataview.git
 3. Code: <ins>import { BitDataView } from '@telemok/ts-bit-dataview';</ins>
 4. Code: <ins>const bitDataView = new BitDataView();</ins>
 
+## Installation to DOM .html
+<script type="module">
+import {BitDataView} from "https://cdn.jsdelivr.net/gh/Telemok/ts-bit-dataview/dist/es-bundle.min.js"
+</script>
+
 ## Main functions:
 ```javascript
 /* setAt - set value in address at begin of bitDataView (dont't change size) */
