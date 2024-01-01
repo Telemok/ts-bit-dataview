@@ -1,11 +1,7 @@
-tsc // compile to ready, make .js .map .d.ts
-
 npm test // test project
+npm run all // compile, test, pack, min
 
 https://github.com/Telemok/ts-bit-dataview.git
-
-
-
 
 
 npm install --save-dev jest
@@ -19,7 +15,3 @@ rename jest.config.ts => jest.config.js1 // if no rename tsc will change dir str
 don't need install if rename .ts to .js npm i --save-dev ts-node
 npm test // run test with jest
 
-
-tsc -p tsconfig.commonjs.json
-tsc -p tsconfig.esnext.json
-npm test

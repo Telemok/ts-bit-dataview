@@ -1,6 +1,6 @@
-//import {EnumBitNumbering, BitNumbering} from "./BitNumbering";
-
-const { BitNumbering, EnumBitNumbering } = require('../dist/commonjs/BitNumbering');
+//import {EnumBitNumbering, BitNumbering} from "../dist/esnext/BitNumbering";
+//Jest not support import
+const { BitNumbering, EnumBitNumbering } = require('../dist/commonjs/BitNumbering.js');
 
 test('List should add and retrieve items', () => {
     const bitNumbering = new BitNumbering();

@@ -1,5 +1,5 @@
 //import {EnumEndianness, Endianness} from "../dist/esnext/Endianness.js";
-
+//Jest not support import
 const { Endianness, EnumEndianness } = require('../dist/commonjs/Endianness.js');
 
 test('List should add and retrieve items', () => {
