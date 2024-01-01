@@ -181,7 +181,7 @@ https://github.com/Telemok/ts-bit-dataview.git
 
 ## Installation to NodeJs:
 1. ><ins>npm install git+https://github.com/Telemok/ts-bit-dataview.git </ins>
-2. 
+2. ```import { BitDataView } from '@telemok/ts-bit-dataview';```
 ```javascript
 import { BitDataView } from '@telemok/ts-bit-dataview';
 const bitDataView = new BitDataView();
