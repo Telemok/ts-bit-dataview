@@ -8,9 +8,11 @@
     "buildcommon": "tsc -p tsconfig.commonjs.json",
     "build": "tsc -p tsconfig.esnext.json",
     "test": "jest",
-    "merge": "npx rollup -c",
-    "minimize": "npx terser ./dist/es-bundle.js --compress --mangle --output ./dist/es-bundle.min.js",
-    "all": "npm run buildcommon && npm run build && npm run test && npm run merge && npm run minimize"
+    "merge-esnext": "npx rollup -c rollup.config.esnext.js",
+    "merge-commonjs": "npx rollup -c rollup.config.commonjs.js",
+    "minimize-esnext": "npx terser ./dist/esnext-bundle/es-bundle.js --compress --mangle --output ./dist/esnext-bundle/es-bundle.js",
+    "minimize-commonjs": "npx terser ./dist/commonjs-bundle/js-bundle.js --compress --mangle --output ./dist/commonjs-bundle/js-bundle.js",
+    "all": "npm run buildcommon && npm run build && npm run test && npm run merge-esnext && npm run merge-commonjs && npm run minimize-esnext && npm run minimize-commonjs"
   },
   "repository": {
     "type": "git",

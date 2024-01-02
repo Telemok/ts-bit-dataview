@@ -1,7 +1,7 @@
 export default {
     input: 'dist/esnext/index.js',
     output: {
-        file: 'dist/es-bundle.js',
+        file: 'dist/esnext-bundle/es-bundle.js',
         format: 'es',
     },
 };

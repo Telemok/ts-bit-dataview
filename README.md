@@ -1,13 +1,5 @@
-<head>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
-</head>
-
 # ts-bit-dataview
 TypeScript bit addressing DataView+Stack+Queue+Buffer+Array with any types: Uint13, Int53, BigInt61, Float17, LSB/MSB, LE/BE, .set(), .get(), .push(), .pop(), .shift(), .unshift()
-
-# bitdataview (beta version)
-
-ES6 bit addressing DataView+Stack+Queue+Buffer with any types: Uint13, Int53, BigInt61, Float17, LSB/MSB, LE/BE, .set(), .get(), .push(), .pop(), .shift(), .unshift()
 
 ## Features
 
@@ -38,7 +30,7 @@ import { BitDataView } from '@telemok/ts-bit-dataview';
 let sourceData = {
 	percents: 99, // maximal 7 bits
 	isOn: true, // 1 bit
-	moneyBalance: -1234567890123, // maximal 43 bits
+	moneyBalance: -1234567890123, // maximal 43 bits****
 };
 let source = new BitDataView();
 source.push_Byte(/*pack*/ 7 /*bits*/, sourceData.percents);
@@ -183,18 +175,40 @@ protocol.addEventListener('readByte', event =>{
 ## Source code:
 https://github.com/Telemok/ts-bit-dataview.git
 
-## Installation to NodeJs:
-1. ><ins id="code1">npm install git+https://github.com/Telemok/ts-bit-dataview.git </ins>
-   <button data-clipboard-target="#code1" class="flex gap-1 items-center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="icon-sm"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 4C10.8954 4 10 4.89543 10 6H14C14 4.89543 13.1046 4 12 4ZM8.53513 4C9.22675 2.8044 10.5194 2 12 2C13.4806 2 14.7733 2.8044 15.4649 4H17C18.6569 4 20 5.34315 20 7V19C20 20.6569 18.6569 22 17 22H7C5.34315 22 4 20.6569 4 19V7C4 5.34315 5.34315 4 7 4H8.53513ZM8 6H7C6.44772 6 6 6.44772 6 7V19C6 19.5523 6.44772 20 7 20H17C17.5523 20 18 19.5523 18 19V7C18 6.44772 17.5523 6 17 6H16C16 7.10457 15.1046 8 14 8H10C8.89543 8 8 7.10457 8 6Z" fill="currentColor"></path></svg>Copy code</button>
-
-2. <code>import { BitDataView } from '@telemok/ts-bit-dataview';</code>
-3. ``const bitDataView = new BitDataView();``
-
-
-
-## Installation to DOM .html
-script type="module">
+## Installation, begin to use:
+1. How to use in last EcmaScript or TypeScript with npm (recommended):
+```bash
+npm install git+https://github.com/Telemok/ts-bit-dataview.git
+```
+```ecmascript 6
+import { BitDataView } from '@telemok/ts-bit-dataview';
+```
+2. How to use in commonJS with npm:
+```bash
+npm install git+https://github.com/Telemok/ts-bit-dataview.git
+```
+```javascript
+const BitDataView = require("@telemok/ts-bit-dataview/dist/commonjs/index.js");
+```
+3. How to use in ecmascript in html with static import, without npm:
+```html
+<script type="module">
 import {BitDataView} from "https://cdn.jsdelivr.net/gh/Telemok/ts-bit-dataview/dist/es-bundle.min.js"
+const bitDataView = new BitDataView();
+```
+4. How to use in ecmascript in html with dynamic import, without npm:
+```html
+<script type="module">
+async function work(){
+    const BitDataView = await import("https://cdn.jsdelivr.net/gh/Telemok/ts-bit-dataview/dist/esnext-bundle/es-bundle.min.js");
+    const bitDataView = new BitDataView();
+```
+5. How to use in common html: 
+```html
+<script src="https://cdn.jsdelivr.net/gh/Telemok/ts-bit-dataview/dist/commonjs-bundle/js-bundle.min.js"></script>
+<script>
+let source = new TelemokBitDataView.BitDataView();
+```
 
 ## Main functions:
 ```javascript
@@ -326,25 +340,6 @@ expandLeftIfNeed(checkUnshiftBits, bitCountIfExpandRequired = 256 * 8)
 
 toString()
 
-```
-
-## Tests:
-
-### Test1. Compare with DataView component (70 msec)
-Only LSB.
-
-Little endian and big endian.
-
-1000 random offsets and values
-```javascript
-dataView.getUint32() vs .setAtUint(32) and .getAtUint(32)
-dataView.getInt32() vs .setAtInt(32) and .getAtInt(32)
-dataView.getUint16() vs .setAtUint(16) and .getAtUint(16)
-dataView.getUint8() vs .setAtUint(8) and .getAtUint(8)
-dataView.getUint8() vs .setAtByte(8) and .getAtByte(8)
-dataView.getBigUint64() vs .setAtBigUint(64) and .getAtBigUint(64)
-dataView.getFloat64() vs .setAtFloat64() and .getAtFloat64()
-dataView.getFloat32() vs .setAtFloat32() and .getAtFloat32()
 ```
 
 ## Another libs another authors:
