@@ -112,7 +112,7 @@ _countBitsShifted can not be < 0
     constructor(bufferInfo) {
         this.__automaticMemoryExpansion = false;
         if (bufferInfo === undefined) {
-            this.__data = new Uint8Array(64);
+            this.__data = new Uint8Array(512);
             this.__countBitsPushLimit = this.__data.length * 8;
             this.__automaticMemoryExpansion = true;
         }

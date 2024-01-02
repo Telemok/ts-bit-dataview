@@ -8,22 +8,12 @@
 <h1>Hello, it jsdom-script-src!</h1>
 <h2>Tip: Check your console</h2>
 </body>
-<script src="../dist/es-bundle.js"></script>
+<!--<script src="../dist/commonjs-bundle/js-bundle.min.js"></script>-->
+<script src="https://cdn.jsdelivr.net/gh/Telemok/ts-bit-dataview/dist/commonjs-bundle/js-bundle.min.js"></script>
+
 <script >
-    //import {BitDataView} from "../dist/es-bundle.js"
-
-    let sourceData = {
-        percents: 99, // maximal 7 bits
-        isOn: true, // 1 bit
-        moneyBalance: -1234567890123, // maximal 43 bits
-    };
-
     let source = new TelemokBitDataView.BitDataView();
-    source.pushByte(/*pack*/ 7 /*bits*/, sourceData.percents);
-    source.pushByte(/*pack*/ 1 /*bit*/,sourceData.isOn);
-    source.pushInt(/*pack*/ 43 /*bits*/, sourceData.moneyBalance);
-    console.log("storedBits", source.getCountStoredBits());//storedBits 51
-    let hex = source.exportUnit8Array();//export 7 + 1 + 43 = 51 bits or 7 bytes
-    console.log("hex", hex);//hex e335fb048ee006
+    source.pushByte(/*pack*/ 7 /*bits*/, 99);
+    console.log(source.toString());
 </script>
 </html>
